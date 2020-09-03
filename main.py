@@ -1,18 +1,12 @@
-import os
-
-from flask import Flask
-
 from argparse import ArgumentParser
 from dotenv import load_dotenv
-
-load_dotenv()
 from app import FlaskApp
-import logging
+load_dotenv()
+
 
 app = FlaskApp().getApp()
-
-#log = logging.getLogger('werkzeug')
-#log.setLevel(logging.ERROR)
+# log = logging.getLogger('werkzeug')
+# log.setLevel(logging.ERROR)
 if __name__ == '__main__':
     arg_parser = ArgumentParser(
         usage='Usage: python ' + __file__ + ' [--port <port>] [--help]'
