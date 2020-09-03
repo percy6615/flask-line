@@ -23,12 +23,6 @@ class FlaskApp:
         return FlaskApp.__single
 
     def __init__(self):
-        self.app = None
-        self.cache = None
-        if self.app is None:
-            self.set()
-
-    def set(self):
         self.app = Flask(__name__)
         self.app.wsgi_app = ProxyFix(self.app.wsgi_app, x_for=1, x_host=1, x_proto=1)
         Bootstrap(self.app)
@@ -47,11 +41,7 @@ class FlaskApp:
         return api
 
     def getApp(self):
-        if self.app is None:
-            self.set()
         return self.app
 
     def getCache(self):
-        if self.cache is None:
-            self.set()
         return self.cache

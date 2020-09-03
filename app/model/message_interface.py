@@ -1,7 +1,7 @@
 import random
 from abc import ABCMeta, abstractmethod
 
-from app.database import Mysqls, mysql_engine
+from app.database import MySQLs, mysql_engine
 import pandas as pd
 import time
 
@@ -24,7 +24,7 @@ class MessageInterface(metaclass=ABCMeta):
     def isCheckEventExist(self):
         checkSql = self.setCheckEventExistSql()
         try:
-            tf = len(Mysqls().get(checkSql)) >= 1
+            tf = len(MySQLs().get(checkSql)) >= 1
         except None:
             print('check error to db event')
         return tf
@@ -32,7 +32,7 @@ class MessageInterface(metaclass=ABCMeta):
     def deleteEvent(self):
         delSql = self.setDeleteEventSql()
         try:
-            Mysqls().run(delSql)
+            MySQLs().run(delSql)
         except None:
             print('delete error to db event')
 

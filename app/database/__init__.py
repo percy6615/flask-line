@@ -10,7 +10,7 @@ logger = log_tool.logger
 load_dotenv()
 
 
-class Mysqls:
+class MySQLs:
     # getInstance
     _instance = None
 
@@ -45,8 +45,8 @@ class Mysqls:
             self.cur.execute(sql)
             self.conn.commit()
             self._logout()
-        except :
-            print('mysql conn get error')
+        except pymysql.Error as e:
+            print('mysql conn get error '+str(e))
 
     @synchronized
     def get(self, sql):
@@ -59,16 +59,16 @@ class Mysqls:
             self.conn.commit()
             self._logout()
             return data  # return tuple
-        except :
-            print('mysql conn get error')
+        except pymysql.Error as e:
+            print('mysql conn get error '+str(e))
 
     def _logout(self):
         try:
             if self.conn is not None:
                 self.conn.close()
             logger.info('log out from mysql database')
-        except :
-            logger.warning('already logged out from Postgres database')
+        except pymysql.Error as e:
+            logger.warning('already logged out from Postgres database'+str(e))
 
 # class MysqlPool:
 #     def __new__(cls, *args, **kwargs):

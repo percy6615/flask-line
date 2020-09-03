@@ -28,8 +28,8 @@ from linebot.models import (
     SeparatorComponent, QuickReply, QuickReplyButton,
     ImageSendMessage)
 
-from app.api import routerCache
-from app.model.event_handle import FollowEventHandle, JoinEventHandle
+from ..api import routerCache
+from ..model.event_handle import FollowEventHandle, JoinEventHandle
 
 channel_secret = os.getenv('channel_secret')
 channel_access_token = os.getenv('channel_access_token')

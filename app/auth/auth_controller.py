@@ -5,8 +5,7 @@ from app.auth import routerCache
 
 
 class Fuck1Controller(Resource):
-    def __init__(self, *args, **kwargs):
-        print()
+    #def __init__(self, *args, **kwargs):
         # super.__init__(*args, **kwargs)
 
     def post(self):

@@ -1,7 +1,5 @@
 from abc import ABC
-
 from linebot.models import FollowEvent, JoinEvent, SourceGroup, SourceRoom
-
 from app.model.message_interface import MessageInterface
 
 
