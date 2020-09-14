@@ -26,7 +26,7 @@ class FollowEventHandle(MessageInterface, ABC):
                           'phone': None, 'unitname': None, 'roomid': None,
                           'groupid': None, 'displayurl': self.profileUrl,
                           'channeltoken': self.channel_access_token, 'replytoken': self.replyToken,
-                          'userid': self.eventSourceUserId, 'groupname': None}]}
+                          'userid': self.eventSourceUserId, 'groupname': None, 'webflag': 0}]}
 
     def setCheckEventExistSql(self):
         checkSql = 'select 1 from disaster_userlist where eventstype=\'follow\' and userid=\'' + self.eventSourceUserId + '\' and channeltoken=\'' + self.channel_access_token + '\''
@@ -67,7 +67,7 @@ class JoinEventHandle(MessageInterface, ABC):
                           'phone': None, 'unitname': None, 'roomid': self.eventSourceRoomId,
                           'groupid': self.eventSourceGroupId, 'displayurl': self.profileUrl,
                           'channeltoken': self.channel_access_token, 'replytoken': self.replyToken,
-                          'userid': self.eventSourceUserId, 'groupname': self.groupName}]}
+                          'userid': self.eventSourceUserId, 'groupname': self.groupName,'webflag': -1}]}
 
     def setCheckEventExistSql(self):
         checkSql = 'select 0'

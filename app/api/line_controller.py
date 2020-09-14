@@ -43,6 +43,12 @@ handler = WebhookHandler(channel_secret)
 # static_tmp_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'static', 'tmp')
 static_tmp_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'tmp')
 
+wra_baseuri = 'http://ncsist.wrapoc.tk'
+wra_register = '/registration?sender='
+webhook_baseuri = 'https://lineapplicationwra.zapto.org'
+image_sign_static = '/static/images/sign_icon.png'
+image_register_static = '/static/images/register.jpg'
+
 
 # function for create tmp dir for download content
 def make_static_tmp_dir():
@@ -89,6 +95,34 @@ class LineControllerPro(Resource):
     @handler.add(MessageEvent, message=TextMessage)
     def handle_text_message(event):
         text = event.message.text
+        if text == 'test':
+            if isinstance(event.source, SourceUser):
+                # line_bot_api.reply_message(
+                #     event.reply_token, TextSendMessage(text=wrauri + str(event.source.user_id)))
+                # confirm_template = ConfirmTemplate(text='註冊阿，叫你註冊是沒聽到逆!', actions=[
+                #     URIAction(label='確定', uri=wrauri + str(event.source.user_id)),
+                #     MessageAction(label='取消', text='No!')
+                # ])
+                button_template = ButtonsTemplate(
+                    thumbnail_image_url=webhook_baseuri + image_register_static,
+                    title='註冊',
+                    text='請人員點擊註冊',
+                    actions=[
+                        URIAction(
+                            label='確定',
+                            uri=wra_baseuri + wra_register + str(event.source.user_id)
+                        )
+                    ]
+                )
+                template_message = TemplateSendMessage(
+                    alt_text='註冊帳號', template=button_template)
+
+                line_bot_api.reply_message(event.reply_token, template_message)
+            else:
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text="Bot can't use profile API without user ID"))
+
         if text == 'profile':
             if isinstance(event.source, SourceUser):
                 profile = line_bot_api.get_profile(event.source.user_id)
@@ -177,8 +211,21 @@ class LineControllerPro(Resource):
         profile = line_bot_api.get_profile(event.source.user_id)
         followHandle = FollowEventHandle(event, profile, channel_access_token)
         followHandle.saveUserEvent("disaster_userlist", followHandle.to_json()['data'])
+        button_template = ButtonsTemplate(
+            thumbnail_image_url=webhook_baseuri + image_register_static,
+            title='註冊',
+            text='請人員點擊註冊',
+            actions=[
+                URIAction(
+                    label='確定',
+                    uri=wra_baseuri + wra_register + str(event.source.user_id)
+                )
+            ]
+        )
+        template_message = TemplateSendMessage(
+            alt_text='註冊帳號', template=button_template)
         line_bot_api.reply_message(
-            event.reply_token, TextSendMessage(text='Got follow event'))
+            event.reply_token, template_message)
 
     @handler.add(UnfollowEvent)
     def handle_unfollow(event):
@@ -269,4 +316,6 @@ class FuckController(Resource):
 
     @routerCache.cached()
     def get(self):
+        a = request.args.get('page', default=1, type=int)
+        print(a)
         return {"success": 200}
