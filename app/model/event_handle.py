@@ -88,3 +88,4 @@ class JoinEventHandle(MessageInterface, ABC):
                      "channel_access_token)s'" % (
                 {"eventSourceRoomId": self.eventSourceRoomId, "channel_access_token": self.channel_access_token})
         return delSql
+

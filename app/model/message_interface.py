@@ -1,6 +1,7 @@
 import random
 from abc import ABCMeta, abstractmethod
 
+from app import register_man
 from app.database import MySQLs, mysql_engine
 import pandas as pd
 import time
@@ -47,6 +48,9 @@ class MessageInterface(metaclass=ABCMeta):
                 print('save error to db event')
             time.sleep(0.5)
             isCheckExist = self.isCheckEventExist()
+            if isCheckExist:
+                senderid = jsonData[0]['senderid']
+                register_man[senderid] = jsonData[0]
             count = count - 1
 
 

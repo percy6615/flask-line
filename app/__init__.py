@@ -10,10 +10,11 @@ from flask_mail import Mail
 from flask_moment import Moment
 from flask_pagedown import PageDown
 
+from app.model.disaster_userlist import UserList
 
 basedirs = os.path.abspath(os.path.dirname(__file__))
 basedir = basedirs + '/cache'
-
+register_man = UserList().getUserList()
 
 class FlaskApp:
     __single = None

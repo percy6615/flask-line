@@ -28,6 +28,7 @@ from linebot.models import (
     SeparatorComponent, QuickReply, QuickReplyButton,
     ImageSendMessage)
 
+from .. import register_man
 from ..api import routerCache
 from ..model.event_handle import FollowEventHandle, JoinEventHandle
 
@@ -48,7 +49,6 @@ wra_register = '/registration?sender='
 webhook_baseuri = 'https://lineapplicationwra.zapto.org'
 image_sign_static = '/static/images/sign_icon.png'
 image_register_static = '/static/images/register.jpg'
-
 
 # function for create tmp dir for download content
 def make_static_tmp_dir():
@@ -79,6 +79,7 @@ class LineControllerPro(Resource):
         print("Request body: " + body)
         # handle webhook body
         try:
+            print(register_man)
             handler.handle(body, signature)
         except LineBotApiError as e:
             print("Got exception from LINE Messaging API: %s\n" % e.message)
@@ -316,6 +317,4 @@ class FuckController(Resource):
 
     @routerCache.cached()
     def get(self):
-        a = request.args.get('page', default=1, type=int)
-        print(a)
         return {"success": 200}

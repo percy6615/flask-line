@@ -70,6 +70,31 @@ class MySQLs:
         except pymysql.Error as e:
             logger.warning('already logged out from Postgres database'+str(e))
 
+    @staticmethod
+    def get_index_dict(cur):
+        index_dict = dict()
+        index = 0
+        for desc in cur.description:
+            index_dict[desc[0]] = index
+            index = index + 1
+        return index_dict
+
+    @synchronized
+    def get_dict_data_sql(self, sql):
+
+        if self.conn is None:
+            self._conn()
+        self.cur.execute(sql)
+        data = self.cur.fetchall()
+        index_dict = self.get_index_dict(self.cur)
+        res = []
+        for datai in data:
+            resi = dict()
+            for indexi in index_dict:
+                resi[indexi] = datai[index_dict[indexi]]
+            res.append(resi)
+        return res
+
 # class MysqlPool:
 #     def __new__(cls, *args, **kwargs):
 #         if cls._instance is None:
