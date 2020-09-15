@@ -76,10 +76,10 @@ class LineControllerPro(Resource):
         body = request.get_data(as_text=True)
         logging.info("Request body: " + body)
         # app.logger.info("Request body: " + body)
-        print("Request body: " + body)
+        # print("Request body: " + body)
         # handle webhook body
         try:
-            print(register_man)
+
             handler.handle(body, signature)
         except LineBotApiError as e:
             print("Got exception from LINE Messaging API: %s\n" % e.message)
@@ -96,6 +96,17 @@ class LineControllerPro(Resource):
     @handler.add(MessageEvent, message=TextMessage)
     def handle_text_message(event):
         text = event.message.text
+
+        if  event.source.user_id in register_man:
+           if register_man[event.source.user_id]['webflag'] != 1:
+               line_bot_api.reply_message(
+                   event.reply_token,
+                   TextSendMessage(text="沒註冊"))
+           elif register_man[event.source.user_id]['webflag'] == 1:
+               line_bot_api.reply_message(
+                   event.reply_token,
+                   TextSendMessage(text="註冊"))
+
         if text == 'test':
             if isinstance(event.source, SourceUser):
                 # line_bot_api.reply_message(
