@@ -2,6 +2,7 @@ from sqlalchemy import create_engine
 import os
 from app.tools import log_tool
 
+
 logger = log_tool.logger
 
 
@@ -15,3 +16,4 @@ def create_ng_mysql():
     uri = 'mysql+pymysql://' + mysql_username + ':' + mysql_pwd + '@' + mysql_host + ':' + mysql_port + '/' + mysql_database + '?charset=utf8'
     engine = create_engine(uri)
     return engine
+

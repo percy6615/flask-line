@@ -3,7 +3,7 @@ import logging
 import os
 import sys
 import tempfile
-from flask import request, send_from_directory
+from flask import request, send_from_directory, Response
 from flask_restful import Resource, abort
 from linebot import (
     LineBotApi, WebhookHandler
@@ -27,8 +27,9 @@ from linebot.models import (
     TextComponent, SpacerComponent, IconComponent, ButtonComponent,
     SeparatorComponent, QuickReply, QuickReplyButton,
     ImageSendMessage)
+from werkzeug.utils import redirect
 
-from .. import register_man
+from .. import register_man, userListhandle
 from ..api import routerCache
 from ..model.event_handle import FollowEventHandle, JoinEventHandle
 
@@ -50,6 +51,7 @@ webhook_baseuri = 'https://lineapplicationwra.zapto.org'
 image_sign_static = '/static/images/sign_icon.png'
 image_register_static = '/static/images/register.jpg'
 
+
 # function for create tmp dir for download content
 def make_static_tmp_dir():
     try:
@@ -60,6 +62,22 @@ def make_static_tmp_dir():
             pass
         else:
             raise
+
+
+def buttonRegisterTemplate(user_id):
+    button_template = ButtonsTemplate(
+        thumbnail_image_url=webhook_baseuri + image_register_static,
+        text='請點擊註冊',
+        actions=[
+            URIAction(
+                label='確定',
+                uri=wra_baseuri + wra_register + str(user_id)
+            )
+        ]
+    )
+    template_message = TemplateSendMessage(
+        alt_text='註冊帳號', template=button_template)
+    return template_message
 
 
 class LineControllerPro(Resource):
@@ -74,12 +92,20 @@ class LineControllerPro(Resource):
         signature = request.headers['X-Line-Signature']
         # get request body as text
         body = request.get_data(as_text=True)
+        json_body = request.get_json()
+        eventType = json_body['events'][0]['type']
+        notNeedRestricted = ["unfollow", "follow", "leave", "join"]
+        if eventType not in notNeedRestricted:
+            eventSenderId = json_body['events'][0]['source']['userId']
+            if not self.isUserRegister(eventSenderId):
+                eventreplytoken = json_body['events'][0]['replyToken']
+                line_bot_api.reply_message(
+                    eventreplytoken,
+                    [TextSendMessage(text="沒註冊本系統，請點選註冊，謝謝。"), buttonRegisterTemplate(eventSenderId)])
+                return
         logging.info("Request body: " + body)
-        # app.logger.info("Request body: " + body)
-        # print("Request body: " + body)
         # handle webhook body
         try:
-
             handler.handle(body, signature)
         except LineBotApiError as e:
             print("Got exception from LINE Messaging API: %s\n" % e.message)
@@ -88,24 +114,16 @@ class LineControllerPro(Resource):
             print("\n")
         except InvalidSignatureError:
             abort(400)
-        return 'OK'
+        return 'ok'
 
     def get(self):
+        print()
+        # line_bot_api.push_message('C13484d958428ce83eba10808c44bbe34', TextSendMessage(text='Hello World!'))
         return 'ok'
 
     @handler.add(MessageEvent, message=TextMessage)
     def handle_text_message(event):
         text = event.message.text
-
-        if  event.source.user_id in register_man:
-           if register_man[event.source.user_id]['webflag'] != 1:
-               line_bot_api.reply_message(
-                   event.reply_token,
-                   TextSendMessage(text="沒註冊"))
-           elif register_man[event.source.user_id]['webflag'] == 1:
-               line_bot_api.reply_message(
-                   event.reply_token,
-                   TextSendMessage(text="註冊"))
 
         if text == 'test':
             if isinstance(event.source, SourceUser):
@@ -115,20 +133,7 @@ class LineControllerPro(Resource):
                 #     URIAction(label='確定', uri=wrauri + str(event.source.user_id)),
                 #     MessageAction(label='取消', text='No!')
                 # ])
-                button_template = ButtonsTemplate(
-                    thumbnail_image_url=webhook_baseuri + image_register_static,
-                    title='註冊',
-                    text='請人員點擊註冊',
-                    actions=[
-                        URIAction(
-                            label='確定',
-                            uri=wra_baseuri + wra_register + str(event.source.user_id)
-                        )
-                    ]
-                )
-                template_message = TemplateSendMessage(
-                    alt_text='註冊帳號', template=button_template)
-
+                template_message = buttonRegisterTemplate(event.source.user_id)
                 line_bot_api.reply_message(event.reply_token, template_message)
             else:
                 line_bot_api.reply_message(
@@ -223,19 +228,8 @@ class LineControllerPro(Resource):
         profile = line_bot_api.get_profile(event.source.user_id)
         followHandle = FollowEventHandle(event, profile, channel_access_token)
         followHandle.saveUserEvent("disaster_userlist", followHandle.to_json()['data'])
-        button_template = ButtonsTemplate(
-            thumbnail_image_url=webhook_baseuri + image_register_static,
-            title='註冊',
-            text='請人員點擊註冊',
-            actions=[
-                URIAction(
-                    label='確定',
-                    uri=wra_baseuri + wra_register + str(event.source.user_id)
-                )
-            ]
-        )
-        template_message = TemplateSendMessage(
-            alt_text='註冊帳號', template=button_template)
+        # register_man[event.source.user_id] =
+        template_message = buttonRegisterTemplate(event.source.user_id)
         line_bot_api.reply_message(
             event.reply_token, template_message)
 
@@ -298,6 +292,12 @@ class LineControllerPro(Resource):
         logging.info("Got memberLeft event")
         # app.logger.info("Got memberLeft event")
 
+    def isUserRegister(self, user_id):
+        if user_id in register_man:
+            if register_man[user_id]['webflag'] == 1:
+                return True
+        return False
+
 
 class StaticPathController(Resource):
     # def __init__(self, *args, **kwargs):
@@ -311,21 +311,28 @@ class StaticPathController(Resource):
         return send_from_directory('static', path)
 
 
-class FuckController(Resource):
+class RegisterController(Resource):
     # def __init__(self, *args, **kwargs):
     # print()
     # super.__init__(*args, **kwargs)
-
     def post(self):
-        # get X-Line-Signature header value
-        # signature = request.headers['X-Line-Signature']
-        # get request body as text
-        body = request.get_data(as_text=True)
-        logging.info("Request body: " + body)
-        # app.logger.info("Request body: " + body)
-        print("Request body: " + body)
-        # handle webhook body
+        # body = request.get_data(as_text=True)
+        json_body = request.get_json()
+        if json_body is not None and "senderid" in json_body:
+            if register_man[json_body['senderid']]['webflag'] == 1:
+                print('註冊過了')
+            else:
+                register_man[json_body['senderid']]['webflag'] = 1
+                register_man[json_body['senderid']]['groupname'] = json_body['groupname']
+                print(userListhandle.updateUser(json_body['senderid'], json_body['groupname']))
+            return {"success": 200}
+        else:
+            return {"fail": "fuck no content"}
 
-    @routerCache.cached()
+    # @routerCache.cached(timeout=50)
     def get(self):
-        return {"success": 200}
+        if request.args.get('flag') == str(1):
+            return Response("line 帳號已註冊過!", content_type="application/json; charset=utf-8")
+        else:
+            return redirect("http://ncsist.wrapoc.tk/", code=200)
+

@@ -5,9 +5,10 @@ from app import register_man
 from app.database import MySQLs, mysql_engine
 import pandas as pd
 import time
-
+# from sqlalchemy.orm import sessionmaker
 engine = mysql_engine.create_ng_mysql()
 
+# db_session = sessionmaker(engine)
 
 class MessageInterface(metaclass=ABCMeta):
     @abstractmethod

@@ -14,8 +14,9 @@ from app.model.disaster_userlist import UserList
 
 basedirs = os.path.abspath(os.path.dirname(__file__))
 basedir = basedirs + '/cache'
-register_man = UserList().getUserList()
-
+userListhandle = UserList().handleUserList()
+register_man = userListhandle.getUserList()
+print('register_man_out')
 class FlaskApp:
     __single = None
 
@@ -35,6 +36,7 @@ class FlaskApp:
         PageDown(self.app)
         self.app.config['JWT_SECRET_KEY'] = 'this-should-be-change'
         self.cache = Cache(self.app, config={'CACHE_TYPE': 'filesystem', 'CACHE_DIR': basedir})
+        print('register_man_init')
         from . import api
         from . import auth
 

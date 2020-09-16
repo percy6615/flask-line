@@ -41,10 +41,13 @@ class MySQLs:
 
         if self.conn is None:
             self._conn()
+        elif not self.cur.connection:
+            self._conn()
         try:
-            self.cur.execute(sql)
+            result = self.cur.execute(sql)
             self.conn.commit()
             self._logout()
+            return result
         except pymysql.Error as e:
             print('mysql conn get error '+str(e))
 
@@ -52,6 +55,8 @@ class MySQLs:
     def get(self, sql):
         # logger.info('retrieve data from mysql table')
         if self.conn is None:
+            self._conn()
+        elif not self.cur.connection:
             self._conn()
         try:
             self.cur.execute(sql)
@@ -65,6 +70,7 @@ class MySQLs:
     def _logout(self):
         try:
             if self.conn is not None:
+                self.cur.close()
                 self.conn.close()
             logger.info('log out from mysql database')
         except pymysql.Error as e:
@@ -84,8 +90,11 @@ class MySQLs:
 
         if self.conn is None:
             self._conn()
+        elif not self.cur.connection:
+            self._conn()
         self.cur.execute(sql)
         data = self.cur.fetchall()
+        # self.conn.commit()
         index_dict = self.get_index_dict(self.cur)
         res = []
         for datai in data:
@@ -93,6 +102,7 @@ class MySQLs:
             for indexi in index_dict:
                 resi[indexi] = datai[index_dict[indexi]]
             res.append(resi)
+        self._logout()
         return res
 
 # class MysqlPool:

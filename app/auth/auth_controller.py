@@ -1,7 +1,7 @@
 import logging
 from flask import request
 from flask_restful import Resource
-from app.auth import routerCache
+# from app.auth import routerCache
 
 
 class Fuck1Controller(Resource):
@@ -18,6 +18,6 @@ class Fuck1Controller(Resource):
         print("Request body: " + body)
         # handle webhook body
 
-    @routerCache.cached()
+    # @routerCache.cached()
     def get(self):
         return "ok"
