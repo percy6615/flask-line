@@ -1,10 +1,11 @@
 from argparse import ArgumentParser
 from dotenv import load_dotenv
-from app import FlaskApp
+
+from app import routerApp
+
 load_dotenv()
 
-
-app = FlaskApp().getApp()
+app = routerApp.getApp()
 # log = logging.getLogger('werkzeug')
 # log.setLevel(logging.ERROR)
 if __name__ == '__main__':

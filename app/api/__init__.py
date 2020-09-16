@@ -1,7 +1,5 @@
-from app import FlaskApp
+from .. import routerApp
 
-
-routerApp = FlaskApp()
 api = routerApp.getApi()
 routerCache = routerApp.getCache()
 from .line_controller import LineControllerPro, StaticPathController, RegisterController

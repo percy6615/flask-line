@@ -9,7 +9,6 @@ import os
 from flask_mail import Mail
 from flask_moment import Moment
 from flask_pagedown import PageDown
-
 from app.model.disaster_userlist import UserList
 
 basedirs = os.path.abspath(os.path.dirname(__file__))
@@ -17,6 +16,8 @@ basedir = basedirs + '/cache'
 userListhandle = UserList().handleUserList()
 register_man = userListhandle.getUserList()
 print('register_man_out')
+
+
 class FlaskApp:
     __single = None
 
@@ -37,8 +38,7 @@ class FlaskApp:
         self.app.config['JWT_SECRET_KEY'] = 'this-should-be-change'
         self.cache = Cache(self.app, config={'CACHE_TYPE': 'filesystem', 'CACHE_DIR': basedir})
         print('register_man_init')
-        from . import api
-        from . import auth
+
 
     def getApi(self):
         api = Api(self.getApp())
@@ -49,3 +49,8 @@ class FlaskApp:
 
     def getCache(self):
         return self.cache
+
+
+routerApp = FlaskApp()
+from . import api
+from . import auth

@@ -1,5 +1,5 @@
-from app import FlaskApp
-routerApp = FlaskApp()
+from .. import routerApp
+
 api = routerApp.getApi()
 # routerCache = routerApp.getCache()
 from .auth_controller import Fuck1Controller
