@@ -1,6 +1,6 @@
 from flask_restful import Resource
-
-print("liff")
+import os
+NOTIFY_BIND_URL = f"https://liff.line.me/{os.getenv('LIFF_BIND_ID')}"
 class LiffController(Resource):
     def get(self):
         return 200

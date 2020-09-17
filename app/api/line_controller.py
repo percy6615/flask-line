@@ -29,13 +29,14 @@ from linebot.models import (
     ImageSendMessage)
 from werkzeug.utils import redirect
 
-from .. import register_man, userListhandle
+from .line_template import buttonRegisterTemplate
+from .. import register_man, userListHandle, FlaskApp
 from ..api import routerCache
 from ..model.event_handle import FollowEventHandle, JoinEventHandle
 
 channel_secret = os.getenv('channel_secret')
 channel_access_token = os.getenv('channel_access_token')
-NOTIFY_BIND_URL = f"https://liff.line.me/{os.getenv('LIFF_BIND_ID')}"
+
 if channel_secret is None or channel_access_token is None:
     print('Specify LINE_CHANNEL_SECRET and LINE_CHANNEL_ACCESS_TOKEN as environment variables.')
     sys.exit(1)
@@ -45,11 +46,7 @@ handler = WebhookHandler(channel_secret)
 # static_tmp_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'static', 'tmp')
 static_tmp_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'tmp')
 
-wra_baseuri = 'http://ncsist.wrapoc.tk'
-wra_register = '/registration?sender='
-webhook_baseuri = 'https://lineapplicationwra.zapto.org'
-image_sign_static = '/static/images/sign_icon.png'
-image_register_static = '/static/images/register.jpg'
+
 
 
 # function for create tmp dir for download content
@@ -62,22 +59,6 @@ def make_static_tmp_dir():
             pass
         else:
             raise
-
-
-def buttonRegisterTemplate(user_id):
-    button_template = ButtonsTemplate(
-        thumbnail_image_url=webhook_baseuri + image_register_static,
-        text='請點擊註冊',
-        actions=[
-            URIAction(
-                label='確定',
-                uri=wra_baseuri + wra_register + str(user_id)
-            )
-        ]
-    )
-    template_message = TemplateSendMessage(
-        alt_text='註冊帳號', template=button_template)
-    return template_message
 
 
 class LineControllerPro(Resource):
@@ -95,14 +76,31 @@ class LineControllerPro(Resource):
         json_body = request.get_json()
         eventType = json_body['events'][0]['type']
         notNeedRestricted = ["unfollow", "follow", "leave", "join"]
+        f = FlaskApp()
+
         if eventType not in notNeedRestricted:
-            eventSenderId = json_body['events'][0]['source']['userId']
-            if not self.isUserRegister(eventSenderId):
-                eventreplytoken = json_body['events'][0]['replyToken']
-                line_bot_api.reply_message(
-                    eventreplytoken,
-                    [TextSendMessage(text="沒註冊本系統，請點選註冊，謝謝。"), buttonRegisterTemplate(eventSenderId)])
-                return
+            eventsourceuserId = json_body['events'][0]['source']['userId']
+            eventsourcetype = json_body['events'][0]['source']['type']
+            eventreplytoken = json_body['events'][0]['replyToken']
+            if eventsourcetype == 'user':
+                if not self.isUserRegister(eventsourceuserId):
+                    line_bot_api.reply_message(
+                        eventreplytoken,
+                        [TextSendMessage(text="沒註冊本系統，請點選註冊，謝謝。"), buttonRegisterTemplate(eventsourceuserId)])
+                    return
+            elif eventsourcetype == 'group':
+                if not self.isUserRegister(eventsourceuserId):
+                    line_bot_api.reply_message(
+                        eventreplytoken,
+                        [TextSendMessage(text="請加入機器人，謝謝。"), buttonRegisterTemplate(eventsourceuserId)])
+                    return
+            elif eventsourcetype == 'room':
+                if not self.isUserRegister(eventsourceuserId):
+                    line_bot_api.reply_message(
+                        eventreplytoken,
+                        [TextSendMessage(text="請加入機器人，謝謝。"), buttonRegisterTemplate(eventsourceuserId)])
+                    return
+
         logging.info("Request body: " + body)
         # handle webhook body
         try:
@@ -124,9 +122,8 @@ class LineControllerPro(Resource):
     @handler.add(MessageEvent, message=TextMessage)
     def handle_text_message(event):
         text = event.message.text
-
-        if text == 'test':
-            if isinstance(event.source, SourceUser):
+        if isinstance(event.source, SourceUser):
+            if text == 'test':
                 # line_bot_api.reply_message(
                 #     event.reply_token, TextSendMessage(text=wrauri + str(event.source.user_id)))
                 # confirm_template = ConfirmTemplate(text='註冊阿，叫你註冊是沒聽到逆!', actions=[
@@ -135,13 +132,9 @@ class LineControllerPro(Resource):
                 # ])
                 template_message = buttonRegisterTemplate(event.source.user_id)
                 line_bot_api.reply_message(event.reply_token, template_message)
-            else:
-                line_bot_api.reply_message(
-                    event.reply_token,
-                    TextSendMessage(text="Bot can't use profile API without user ID"))
 
-        if text == 'profile':
-            if isinstance(event.source, SourceUser):
+
+            if text == 'profile':
                 profile = line_bot_api.get_profile(event.source.user_id)
                 line_bot_api.reply_message(
                     event.reply_token, [
@@ -149,77 +142,101 @@ class LineControllerPro(Resource):
                         TextSendMessage(text='Status message: ' + str(profile.status_message)),
                     ]
                 )
-            else:
-                line_bot_api.reply_message(
-                    event.reply_token,
-                    TextSendMessage(text="Bot can't use profile API without user ID"))
+
+        elif isinstance(event.source, SourceGroup):
+            print()
+        elif isinstance(event.source, SourceRoom):
+            print()
+        else:
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text="Bot can't use profile API without user ID"))
 
     @handler.add(MessageEvent, message=LocationMessage)
     def handle_location_message(event):
-        line_bot_api.reply_message(
-            event.reply_token,
-            LocationSendMessage(
-                title='Location', address=event.message.address,
-                latitude=event.message.latitude, longitude=event.message.longitude
+        if isinstance(event.source, SourceUser):
+            line_bot_api.reply_message(
+                event.reply_token,
+                LocationSendMessage(
+                    title='Location', address=event.message.address,
+                    latitude=event.message.latitude, longitude=event.message.longitude
+                )
             )
-        )
+        elif isinstance(event.source, SourceGroup):
+            print()
+        elif isinstance(event.source, SourceRoom):
+            print()
 
     @handler.add(MessageEvent, message=StickerMessage)
     def handle_sticker_message(event):
-        line_bot_api.reply_message(
-            event.reply_token,
-            StickerSendMessage(
-                package_id=event.message.package_id,
-                sticker_id=event.message.sticker_id)
-        )
+        if isinstance(event.source, SourceUser):
+            line_bot_api.reply_message(
+                event.reply_token,
+                StickerSendMessage(
+                    package_id=event.message.package_id,
+                    sticker_id=event.message.sticker_id)
+            )
+        elif isinstance(event.source, SourceGroup):
+            print()
+        elif isinstance(event.source, SourceRoom):
+            print()
 
     # Other Message Type
     @handler.add(MessageEvent, message=(ImageMessage, VideoMessage, AudioMessage))
     def handle_content_message(event):
-        if isinstance(event.message, ImageMessage):
-            ext = 'jpg'
-        elif isinstance(event.message, VideoMessage):
-            ext = 'mp4'
-        elif isinstance(event.message, AudioMessage):
-            ext = 'm4a'
-        else:
-            return
+        if isinstance(event.source, SourceUser):
+            if isinstance(event.message, ImageMessage):
+                ext = 'jpg'
+            elif isinstance(event.message, VideoMessage):
+                ext = 'mp4'
+            elif isinstance(event.message, AudioMessage):
+                ext = 'm4a'
+            else:
+                return
+            message_content = line_bot_api.get_message_content(event.message.id)
+            with tempfile.NamedTemporaryFile(dir=static_tmp_path, prefix=ext + '-', delete=False) as tf:
+                for chunk in message_content.iter_content():
+                    tf.write(chunk)
+                temple_path = tf.name
 
-        message_content = line_bot_api.get_message_content(event.message.id)
-        with tempfile.NamedTemporaryFile(dir=static_tmp_path, prefix=ext + '-', delete=False) as tf:
-            for chunk in message_content.iter_content():
-                tf.write(chunk)
-            temple_path = tf.name
-
-        dist_path = temple_path + '.' + ext
-        dist_name = os.path.basename(dist_path)
-        os.rename(temple_path, dist_path)
-        url = request.host_url + os.path.join('static', 'tmp', dist_name)
-        url = url.replace('\\', '/')
-        line_bot_api.reply_message(
-            event.reply_token, [
-                TextSendMessage(text='Save content.'),
-                TextSendMessage(text=url)
-            ])
+            dist_path = temple_path + '.' + ext
+            dist_name = os.path.basename(dist_path)
+            os.rename(temple_path, dist_path)
+            url = request.host_url + os.path.join('static', 'tmp', dist_name)
+            url = url.replace('\\', '/')
+            line_bot_api.reply_message(
+                event.reply_token, [
+                    TextSendMessage(text='Save content.'),
+                    TextSendMessage(text=url)
+                ])
+        elif isinstance(event.source, SourceGroup):
+            print()
+        elif isinstance(event.source, SourceRoom):
+            print()
 
     @handler.add(MessageEvent, message=FileMessage)
     def handle_file_message(event):
-        message_content = line_bot_api.get_message_content(event.message.id)
-        with tempfile.NamedTemporaryFile(dir=static_tmp_path, prefix='file-', delete=False) as tf:
-            for chunk in message_content.iter_content():
-                tf.write(chunk)
-            temple_path = tf.name
+        if isinstance(event.source, SourceUser):
+            message_content = line_bot_api.get_message_content(event.message.id)
+            with tempfile.NamedTemporaryFile(dir=static_tmp_path, prefix='file-', delete=False) as tf:
+                for chunk in message_content.iter_content():
+                    tf.write(chunk)
+                temple_path = tf.name
 
-        dist_path = temple_path + '-' + event.message.file_name
-        dist_name = os.path.basename(dist_path)
-        os.rename(temple_path, dist_path)
-        url = request.host_url + os.path.join('static', 'tmp', dist_name)
-        url = url.replace('\\', '/')
-        line_bot_api.reply_message(
-            event.reply_token, [
-                TextSendMessage(text='Save file.'),
-                TextSendMessage(text=url)
-            ])
+            dist_path = temple_path + '-' + event.message.file_name
+            dist_name = os.path.basename(dist_path)
+            os.rename(temple_path, dist_path)
+            url = request.host_url + os.path.join('static', 'tmp', dist_name)
+            url = url.replace('\\', '/')
+            line_bot_api.reply_message(
+                event.reply_token, [
+                    TextSendMessage(text='Save file.'),
+                    TextSendMessage(text=url)
+                ])
+        elif isinstance(event.source, SourceGroup):
+            print()
+        elif isinstance(event.source, SourceRoom):
+            print()
 
     @handler.add(FollowEvent)
     def handle_follow(event):
@@ -324,7 +341,7 @@ class RegisterController(Resource):
             else:
                 register_man[json_body['senderid']]['webflag'] = 1
                 register_man[json_body['senderid']]['groupname'] = json_body['groupname']
-                print(userListhandle.updateUser(json_body['senderid'], json_body['groupname']))
+                print(userListHandle.updateUser(json_body['senderid'], json_body['groupname']))
             return {"success": 200}
         else:
             return {"fail": "fuck no content"}
@@ -334,5 +351,4 @@ class RegisterController(Resource):
         if request.args.get('flag') == str(1):
             return Response("line 帳號已註冊過!", content_type="application/json; charset=utf-8")
         else:
-            return redirect("http://ncsist.wrapoc.tk/", code=200)
-
+            return redirect("http://ncsist.wrapoc.tk/registration", code=200)

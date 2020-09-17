@@ -1,3 +1,5 @@
+import random
+
 from flask import Flask
 from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_cors import CORS
@@ -13,18 +15,17 @@ from app.model.disaster_userlist import UserList
 
 basedirs = os.path.abspath(os.path.dirname(__file__))
 basedir = basedirs + '/cache'
-userListhandle = UserList().handleUserList()
-register_man = userListhandle.getUserList()
-print('register_man_out')
+userListHandle = UserList().handleUserList()
+register_man = userListHandle.getUserList()
 
 
 class FlaskApp:
-    __single = None
+    _instance = None
 
-    def __new__(cls):
-        if not FlaskApp.__single:
-            FlaskApp.__single = object.__new__(cls)
-        return FlaskApp.__single
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
 
     def __init__(self):
         self.app = Flask(__name__)
@@ -37,8 +38,8 @@ class FlaskApp:
         PageDown(self.app)
         self.app.config['JWT_SECRET_KEY'] = 'this-should-be-change'
         self.cache = Cache(self.app, config={'CACHE_TYPE': 'filesystem', 'CACHE_DIR': basedir})
-        print('register_man_init')
-
+        self.imemRandom = random.random()
+        print("getImemRandom:__init__" + str(self.getImemRandom()))
 
     def getApi(self):
         api = Api(self.getApp())
@@ -49,6 +50,9 @@ class FlaskApp:
 
     def getCache(self):
         return self.cache
+
+    def getImemRandom(self):
+        return self.imemRandom
 
 
 routerApp = FlaskApp()
