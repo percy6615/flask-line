@@ -13,7 +13,7 @@ def create_ng_mysql():
     mysql_username = os.getenv('mysql_username')
     mysql_port = os.getenv('mysql_port')
     mysql_database = os.getenv('mysql_database')
-    uri = 'mysql+pymysql://' + mysql_username + ':' + mysql_pwd + '@' + mysql_host + ':' + mysql_port + '/' + mysql_database + '?charset=utf8'
+    uri = 'mysql+pymysql://' + mysql_username + ':' + mysql_pwd + '@' + mysql_host + ':' + mysql_port + '/' + mysql_database + '?charset=utf8mb4'
     engine = create_engine(uri)
     return engine
 

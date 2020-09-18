@@ -4,20 +4,14 @@ from dotenv import load_dotenv
 
 from app.tools import log_tool
 # from pymysqlpool.pool import Pool
-from app.tools.sync_tool import synchronized
+from app.tools.sync_tool import synchronized, singleton
 
 logger = log_tool.logger
 load_dotenv()
 
-
+@singleton
 class MySQLs:
     # getInstance
-    _instance = None
-
-    def __new__(cls, *args, **kwargs):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
 
     def __init__(self):
         self.conn = None
