@@ -35,7 +35,6 @@ from werkzeug.utils import redirect
 from .line_template import buttonRegisterTemplate
 from .. import register_man, userListHandle, FlaskApp
 
-
 from ..model.event_handle import FollowEventHandle, JoinEventHandle
 
 channel_secret = os.getenv('channel_secret')
@@ -49,8 +48,6 @@ handler = WebhookHandler(channel_secret)
 
 # static_tmp_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'static', 'tmp')
 static_tmp_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'tmp')
-
-
 
 
 # function for create tmp dir for download content
@@ -81,20 +78,20 @@ class LineControllerPro(Resource):
         eventType = json_body['events'][0]['type']
         notNeedRestricted = ["unfollow", "follow", "leave", "join", "memberLeft", "memberJoined"]
         if eventType not in notNeedRestricted:
-            eventsourceuserId = json_body['events'][0]['source']['userId']
-            eventsourcetype = json_body['events'][0]['source']['type']
+            eventSourceUserId = json_body['events'][0]['source']['userId']
+            eventSourceType = json_body['events'][0]['source']['type']
             eventreplytoken = json_body['events'][0]['replyToken']
-            if eventsourcetype == 'user':
+            if eventSourceType == 'user':
                 print()
-                # if not self.isUserRegister(eventsourceuserId):
+                # if not self.isUserRegister(eventSourceUserId):
                 #     line_bot_api.reply_message(
                 #         eventreplytoken,
-                #         [TextSendMessage(text="沒註冊本系統，請點選註冊，謝謝。"), buttonRegisterTemplate(eventsourceuserId)])
+                #         [TextSendMessage(text="沒註冊本系統，請點選註冊，謝謝。"), buttonRegisterTemplate(eventSourceUserId)])
                 #     return
-            elif eventsourcetype == 'group':
-                if not self.isUserRegister(eventsourceuserId):
+            elif eventSourceType == 'group':
+                if not self.isUserRegister(eventSourceUserId):
                     print()
-                    # profile = line_bot_api.get_profile(eventsourceuserId)
+                    # profile = line_bot_api.get_profile(eventSourceUserId)
                     # line_bot_api.reply_message(
                     #     eventreplytoken, [
                     #         TextSendMessage(text="麻煩您註冊本系統")
@@ -103,13 +100,13 @@ class LineControllerPro(Resource):
                     # )
                     # line_bot_api.reply_message(
                     #     eventreplytoken,
-                    #     [TextSendMessage(text="請加入機器人，謝謝。"), buttonRegisterTemplate(eventsourceuserId)])
+                    #     [TextSendMessage(text="請加入機器人，謝謝。"), buttonRegisterTemplate(eventSourceUserId)])
                     # return
-            elif eventsourcetype == 'room':
-                if not self.isUserRegister(eventsourceuserId):
+            elif eventSourceType == 'room':
+                if not self.isUserRegister(eventSourceUserId):
                     # line_bot_api.reply_message(
                     #     eventreplytoken,
-                    #     [TextSendMessage(text="請加入機器人，謝謝。"), buttonRegisterTemplate(eventsourceuserId)])
+                    #     [TextSendMessage(text="請加入機器人，謝謝。"), buttonRegisterTemplate(eventSourceUserId)])
                     return
 
         logging.info("Request body: " + body)
@@ -128,7 +125,6 @@ class LineControllerPro(Resource):
     def get(self):
         pass
         # line_bot_api.push_message('C13484d958428ce83eba10808c44bbe34', TextSendMessage(text='Hello World!'))
-
 
         url = "https://notify-api.line.me/api/notify"
         data = {'message': 'We did it!'}
@@ -160,23 +156,23 @@ class LineControllerPro(Resource):
                     ]
                 )
             if 'message#' in text:
-                talk = text.split('message#',1)
+                talk = text.split('message#', 1)
                 # if talk.__len__ > 1:
-                    # line_bot_api.reply_message(
-                    #     event.reply_token, [
-                    #         TextSendMessage(text=talk[1]),
-                    #
-                    #     ]
-                    # )
+                # line_bot_api.reply_message(
+                #     event.reply_token, [
+                #         TextSendMessage(text=talk[1]),
+                #
+                #     ]
+                # )
                 url = "https://notify-api.line.me/api/notify"
                 data = {'message': talk[1]}
                 headers = {'Authorization': 'Bearer ' + 'Ri4qeh6l4hSlhEuydMpZ7nbE67TpwUirKEiurgEuhtn'}
                 r = requests.post(url, data=data, headers=headers)
         elif isinstance(event.source, SourceGroup):
             profile = line_bot_api.get_group_summary(event.source.group_id)
-            grpid = line_bot_api.get_group_member_profile(user_id=event.source.user_id,group_id=event.source.group_id)
+            grpid = line_bot_api.get_group_member_profile(user_id=event.source.user_id, group_id=event.source.group_id)
             count = line_bot_api.get_group_members_count(group_id=event.source.group_id)
-            #ids = line_bot_api.get_group_member_ids(group_id=event.source.group_id)#$$$$$$
+            # ids = line_bot_api.get_group_member_ids(group_id=event.source.group_id)#$$$$$$
 
             # line_bot_api.reply_message(
             #     event.reply_token, [
@@ -184,7 +180,6 @@ class LineControllerPro(Resource):
             #
             #     ]
             # )
-
         elif isinstance(event.source, SourceRoom):
             pass
         else:
@@ -373,6 +368,7 @@ class RegisterController(Resource):
     # def __init__(self, *args, **kwargs):
     # print()
     # super.__init__(*args, **kwargs)
+    @staticmethod
     def post(self):
         # body = request.get_data(as_text=True)
         json_body = request.get_json()
@@ -388,14 +384,17 @@ class RegisterController(Resource):
             return {"fail": "fuck no content"}
 
     # @routerCache.cached(timeout=50)
-    def get(self):
+    @staticmethod
+    def get():
         if request.args.get('flag') == str(1):
             return Response("line 帳號已註冊過!", content_type="application/json; charset=utf-8")
         else:
             return redirect("http://ncsist.wrapoc.tk/registration", code=200)
 
+
 class RepostMessageToLineBot(Resource):
     def post(self):
         pass
+
     def get(self):
         pass
