@@ -32,8 +32,8 @@ from linebot.models import (
     ImageSendMessage)
 from werkzeug.utils import redirect
 
-from .line_template import buttonRegisterTemplate
-from .. import register_man, FlaskApp, userListHandle
+from .line_template import buttonRegisterTemplate, flexReportMessageTemlate
+from .. import register_man, FlaskApp, GlobalInMem
 
 from ..model.event_handle import FollowEventHandle, JoinEventHandle
 
@@ -145,7 +145,7 @@ class LineControllerPro(Resource):
                 #     MessageAction(label='取消', text='No!')
                 # ])
                 template_message = buttonRegisterTemplate(event.source.user_id)
-                line_bot_api.reply_message(event.reply_token, template_message)
+                line_bot_api.reply_message(event.reply_token, flexReportMessageTemlate(''))
 
             if text == 'profile':
                 profile = line_bot_api.get_profile(event.source.user_id)
@@ -378,7 +378,7 @@ class RegisterController(Resource):
             else:
                 register_man[json_body['senderid']]['webflag'] = 1
                 register_man[json_body['senderid']]['groupname'] = json_body['groupname']
-                print(userListHandle.updateUser(json_body['senderid'], json_body['groupname']))
+                print(GlobalInMem.updateUser(json_body['senderid'], json_body['groupname']))
             return {"success": 200}
         else:
             return {"fail": "fuck no content"}
@@ -394,7 +394,9 @@ class RegisterController(Resource):
 
 class RepostMessageToLineBot(Resource):
     def post(self):
-        return {'success':200}
+        json_body = request.get_json()
+        print(json_body)
+        return {'success': 200}
 
     def get(self):
-        return {'success':200}
+        return {'success': 200}

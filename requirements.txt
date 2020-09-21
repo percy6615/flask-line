@@ -10,7 +10,7 @@ flask_restful
 flask_cors
 flask_jwt_extended
 flask_cache
-redis~=3.5.3
+redis~=2.10.6
 pip~=20.2.2
 wheel~=0.34.2
 zipp~=3.1.0

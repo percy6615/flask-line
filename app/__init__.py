@@ -11,16 +11,15 @@ import os
 from flask_mail import Mail
 from flask_moment import Moment
 from flask_pagedown import PageDown
-from app.model.disaster_userlist import UserList
-# from .database.redis_engine import redis_handle
+from app.model.globaldata import GlobalInMem
+from .database.redis_engine import redis_handle
 from .tools.sync_tool import singleton
 
 basedirs = os.path.abspath(os.path.dirname(__file__))
 basedir = basedirs + '/cache'
-userListHandle = UserList().handleUserList()
-register_man = userListHandle.getUserList()
-# for key, val in register_man.items():
-#     redis_handle.hmset(key, val)
+globalInMem = GlobalInMem().handleUserList()
+register_man = globalInMem.getUserList()
+
 
 @singleton
 class FlaskApp:

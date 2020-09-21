@@ -3,10 +3,12 @@ from flask import g
 
 from flask import jsonify
 
+
 def forbidden(message):
     response = jsonify({'error': 'forbidden', 'message': message})
     response.status_code = 403
     return response
+
 
 def permission_required(permission):
     def decorator(f):
@@ -15,5 +17,7 @@ def permission_required(permission):
             if not g.current_user.can(permission):
                 return forbidden('Insufficient permissions')
             return f(*args, **kwargs)
+
         return decorated_function
+
     return decorator

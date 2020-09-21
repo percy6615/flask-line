@@ -1,9 +1,10 @@
 from ..tools.sync_tool import singleton
 from app.database.mysql_engine import MySQLs
+from app.database.redis_engine import redis_handle
 
 
 @singleton
-class UserList:
+class GlobalInMem:
     # getInstance
 
     def __init__(self):
@@ -16,6 +17,8 @@ class UserList:
             usersDic[u['senderid']] = u
         self.usersDic = usersDic
         return self
+    def setRedis(self):
+        print()
 
     def getUserList(self):
         return self.usersDic
