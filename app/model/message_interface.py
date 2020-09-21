@@ -2,11 +2,11 @@ import random
 from abc import ABCMeta, abstractmethod
 
 from app import register_man
-from app.database import MySQLs, mysql_engine
+from app.database.mysql_engine import MySQLs, create_ng_mysql
 import pandas as pd
 import time
 # from sqlalchemy.orm import sessionmaker
-engine = mysql_engine.create_ng_mysql()
+engine = create_ng_mysql()
 
 # db_session = sessionmaker(engine)
 

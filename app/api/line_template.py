@@ -21,3 +21,6 @@ def buttonRegisterTemplate(user_id):
     template_message = TemplateSendMessage(
         alt_text='註冊帳號', template=button_template)
     return template_message
+
+def flexXXXXTemlate(user_id):
+    print()

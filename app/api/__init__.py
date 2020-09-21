@@ -2,7 +2,7 @@ from .. import routerApp
 
 api = routerApp.getApi()
 routerCache = routerApp.getCache()
-from .line_controller import LineControllerPro, StaticPathController, RegisterController, RepostMessageToLineBot
+from .line_controller import LineControllerPro, StaticPathController, RepostMessageToLineBot, RegisterController
 from .liff_controller import LiffController
 
 api.add_resource(LineControllerPro, '/webhooks/line')

@@ -33,7 +33,7 @@ from linebot.models import (
 from werkzeug.utils import redirect
 
 from .line_template import buttonRegisterTemplate
-from .. import register_man, userListHandle, FlaskApp
+from .. import register_man, FlaskApp, userListHandle
 
 from ..model.event_handle import FollowEventHandle, JoinEventHandle
 
@@ -394,7 +394,7 @@ class RegisterController(Resource):
 
 class RepostMessageToLineBot(Resource):
     def post(self):
-        pass
+        return {'success':200}
 
     def get(self):
-        pass
+        return {'success':200}
