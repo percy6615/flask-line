@@ -9,19 +9,27 @@ class GlobalInMem:
 
     def __init__(self):
         self.usersDic = None
+        self.groupsDic = None
 
     def handleUserList(self):
-        users = MySQLs().get_dict_data_sql('select * from disaster_userlist where sourcetype="user"')
-        usersDic = dict()
-        for u in users:
-            usersDic[u['senderid']] = u
-        self.usersDic = usersDic
+        all = MySQLs().get_dict_data_sql('select * from disaster_userlist ')
+        self.usersDic = dict()
+        self.groupsDic = dict()
+        for a in all:
+            if a['sourcetype'] == 'user':
+                self.usersDic[a['senderid']] = a
+            elif a['sourcetype'] == 'group':
+                self.groupsDic[a['senderid']] = a
         return self
+
     def setRedis(self):
         print()
 
     def getUserList(self):
         return self.usersDic
+
+    def getGroupList(self):
+        return self.groupsDic
 
     def updateUser(self, senderid, groupname):
         return MySQLs().run(

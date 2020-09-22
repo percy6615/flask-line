@@ -19,8 +19,7 @@ basedirs = os.path.abspath(os.path.dirname(__file__))
 basedir = basedirs + '/cache'
 globalInMem = GlobalInMem().handleUserList()
 register_man = globalInMem.getUserList()
-
-
+register_group = globalInMem.getGroupList()
 @singleton
 class FlaskApp:
     def __init__(self):

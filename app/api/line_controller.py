@@ -32,8 +32,8 @@ from linebot.models import (
     ImageSendMessage)
 from werkzeug.utils import redirect
 
-from .line_template import buttonRegisterTemplate, flexReportMessageTemlate
-from .. import register_man, FlaskApp, GlobalInMem
+from .line_template import buttonRegisterTemplate, flexReportMessageTemlate, flexReportMessageTemplate
+from .. import register_man, FlaskApp, GlobalInMem, register_group
 
 from ..model.event_handle import FollowEventHandle, JoinEventHandle
 
@@ -145,7 +145,10 @@ class LineControllerPro(Resource):
                 #     MessageAction(label='取消', text='No!')
                 # ])
                 template_message = buttonRegisterTemplate(event.source.user_id)
-                line_bot_api.reply_message(event.reply_token, flexReportMessageTemlate(''))
+                data =  {'mission_id': '497d1823-c3b5-4991-a272-e58fb848a329', 'base_unit': '第四河川局',
+                 'reportform_id': 'RP12365854', 'dispatch_unit': '第八河川局', 'mission_status': '進行預佈', 'pumpcar_num': '8',
+                 'location': 'RP12365854', 'remarks': 'RP12365854', 'sender': 'ad', 'create_time': '2020/9/21 14:34:22'}
+                line_bot_api.reply_message(event.reply_token, flexReportMessageTemplate(data))
 
             if text == 'profile':
                 profile = line_bot_api.get_profile(event.source.user_id)
@@ -288,7 +291,7 @@ class LineControllerPro(Resource):
     @handler.add(UnfollowEvent)
     def handle_unfollow(event):
         FollowEventHandle(event, None, channel_access_token).deleteEvent()
-        # logging.info("Got Unfollow event:" + event.source.user_id)
+        logging.info("Got Unfollow event:" + event.source.user_id)
         # app.logger.info("Got Unfollow event:" + event.source.user_id)
 
     @handler.add(JoinEvent)
@@ -296,12 +299,12 @@ class LineControllerPro(Resource):
         summary = line_bot_api.get_group_summary(event.source.group_id)
         joinHandle = JoinEventHandle(event, summary, channel_access_token)
         joinHandle.saveUserEvent("disaster_userlist", joinHandle.to_json()['data'])
-        # profile = line_bot_api.get_group_member_profile(groupidid)
-        # dataEventHandle = DataEventHandle(event, profile)
-        # line_bot_api.get_group_member_ids();
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text='Joined this ' + event.source.type + summary.group_name))
+        ## profile = line_bot_api.get_group_member_profile(groupidid)
+        ## dataEventHandle = DataEventHandle(event, profile)
+        ### line_bot_api.get_group_member_ids();
+        # line_bot_api.reply_message(
+        #     event.reply_token,
+        #     TextSendMessage(text='Joined this ' + event.source.type + summary.group_name))
 
     @handler.add(LeaveEvent)
     def handle_leave(event):
@@ -333,15 +336,16 @@ class LineControllerPro(Resource):
 
     @handler.add(MemberJoinedEvent)
     def handle_member_joined(event):
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(
-                text='Got memberJoined event. event={}'.format(
-                    event)))
+        # line_bot_api.reply_message(
+        #     event.reply_token,
+        #     TextSendMessage(
+        #         text='Got memberJoined event. event={}'.format(
+        #             event)))
+        pass
 
     @handler.add(MemberLeftEvent)
     def handle_member_left(event):
-        print(event)
+        pass
         logging.info("Got memberLeft event")
         # app.logger.info("Got memberLeft event")
 
@@ -395,8 +399,22 @@ class RegisterController(Resource):
 class RepostMessageToLineBot(Resource):
     def post(self):
         json_body = request.get_json()
+        dispatch_unit = json_body['dispatch_unit']
+        groupid = None
+        for key in register_group.keys():
+            if register_group[key]['groupname'] ==dispatch_unit:
+                groupid = key
+                break
+        if json_body is not None and groupid is not None:
+            line_bot_api.push_message(groupid, flexReportMessageTemplate(json_body))
         print(json_body)
         return {'success': 200}
 
     def get(self):
-        return {'success': 200}
+        data = {'mission_id': '497d1823-c3b5-4991-a272-e58fb848a329', 'base_unit': '第四河川局',
+                'reportform_id': 'RP12365854', 'dispatch_unit': '第八河川局', 'mission_status': '進行預佈',
+                'pumpcar_num': '8',
+                'location': 'RP12365854', 'remarks': 'RP12365854', 'sender': 'ad',
+                'create_time': '2020/9/21 14:34:22'}
+        # line_bot_api.push_message('Cd2caf66620fdc51721a42d4e395783e2', flexReportMessageTemplate(data))
+        return {'success': data}
