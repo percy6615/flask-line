@@ -62,7 +62,8 @@ def make_static_tmp_dir():
             raise
 
 
-class LineControllerPro(Resource):
+
+class LineController(Resource):
 
     def __init__(self, *args, **kwargs):
         # super().__init__(*args, **kwargs)
@@ -136,59 +137,79 @@ class LineControllerPro(Resource):
     @handler.add(MessageEvent, message=TextMessage)
     def handle_text_message(event):
         text = event.message.text
-        if isinstance(event.source, SourceUser):
-            if text == 'test':
-                # line_bot_api.reply_message(
-                #     event.reply_token, TextSendMessage(text=wrauri + str(event.source.user_id)))
-                # confirm_template = ConfirmTemplate(text='註冊阿，叫你註冊是沒聽到逆!', actions=[
-                #     URIAction(label='確定', uri=wrauri + str(event.source.user_id)),
-                #     MessageAction(label='取消', text='No!')
-                # ])
-                template_message = buttonRegisterTemplate(event.source.user_id)
-                data =  {'mission_id': '497d1823-c3b5-4991-a272-e58fb848a329', 'base_unit': '第四河川局',
-                 'reportform_id': 'RP12365854', 'dispatch_unit': '第八河川局', 'mission_status': '進行預佈', 'pumpcar_num': '8',
-                 'location': 'RP12365854', 'remarks': 'RP12365854', 'sender': 'ad', 'create_time': '2020/9/21 14:34:22'}
-                line_bot_api.reply_message(event.reply_token, flexReportMessageTemplate(data))
+        try:
+            if isinstance(event.source, SourceUser):
+                if text == 'test':
+                    # line_bot_api.reply_message(
+                    #     event.reply_token, TextSendMessage(text=wrauri + str(event.source.user_id)))
+                    # confirm_template = ConfirmTemplate(text='註冊阿，叫你註冊是沒聽到逆!', actions=[
+                    #     URIAction(label='確定', uri=wrauri + str(event.source.user_id)),
+                    #     MessageAction(label='取消', text='No!')
+                    # ])
+                    template_message = buttonRegisterTemplate(event.source.user_id)
+                    data = {'mission_id': '497d1823-c3b5-4991-a272-e58fb848a329', 'base_unit': '第四河川局',
+                            'reportform_id': 'RP12365854', 'dispatch_unit': '第八河川局', 'mission_status': '進行預佈',
+                            'pumpcar_num': '8',
+                            'location': '桃園市中壢區中央西路888號', 'remarks': '氣象局預報大雨即將來襲，請盡速前往進行欲佈作業。', 'sender': 'ad',
+                            'create_time': '2020/9/21 14:34:22'}
+                    line_bot_api.reply_message(event.reply_token, flexReportMessageTemplate(data))
 
-            if text == 'profile':
-                profile = line_bot_api.get_profile(event.source.user_id)
+                if text == 'profile':
+                    profile = line_bot_api.get_profile(event.source.user_id)
+                    line_bot_api.reply_message(
+                        event.reply_token, [
+                            TextSendMessage(text='Display name: ' + profile.display_name),
+                            TextSendMessage(text='Status message: ' + str(profile.status_message)),
+                        ]
+                    )
+                if 'message#' in text:
+                    talk = text.split('message#', 1)
+                    # if talk.__len__ > 1:
+                    # line_bot_api.reply_message(
+                    #     event.reply_token, [
+                    #         TextSendMessage(text=talk[1]),
+                    #
+                    #     ]
+                    # )
+                    url = "https://notify-api.line.me/api/notify"
+                    data = {'message': talk[1]}
+                    headers = {'Authorization': 'Bearer ' + 'Ri4qeh6l4hSlhEuydMpZ7nbE67TpwUirKEiurgEuhtn'}
+                    r = requests.post(url, data=data, headers=headers)
+            elif isinstance(event.source, SourceGroup):
+                if text == 'test':
+                    # line_bot_api.reply_message(
+                    #     event.reply_token, TextSendMessage(text=wrauri + str(event.source.user_id)))
+                    # confirm_template = ConfirmTemplate(text='註冊阿，叫你註冊是沒聽到逆!', actions=[
+                    #     URIAction(label='確定', uri=wrauri + str(event.source.user_id)),
+                    #     MessageAction(label='取消', text='No!')
+                    # ])
+                    template_message = buttonRegisterTemplate(event.source.user_id)
+                    data = {'mission_id': '497d1823-c3b5-4991-a272-e58fb848a329', 'base_unit': '第四河川局',
+                            'reportform_id': 'RP12365854', 'dispatch_unit': '第八河川局', 'mission_status': '進行預佈',
+                            'pumpcar_num': '8',
+                            'location': '桃園市中壢區中央西路888號', 'remarks': '氣象局預報大雨即將來襲，請盡速前往進行欲佈作業。', 'sender': 'ad',
+                            'create_time': '2020/9/21 14:34:22'}
+                    line_bot_api.reply_message(event.reply_token, flexReportMessageTemplate(data))
+                pass
+                # profile = line_bot_api.get_group_summary(event.source.group_id)
+                # grpid = line_bot_api.get_group_member_profile(user_id=event.source.user_id, group_id=event.source.group_id)
+                # count = line_bot_api.get_group_members_count(group_id=event.source.group_id)
+                ## ids = line_bot_api.get_group_member_ids(group_id=event.source.group_id)#$$$$$$
+
+                # # line_bot_api.reply_message(
+                # #     event.reply_token, [
+                # #         TextSendMessage(text="" ),
+                # #
+                # #     ]
+                #  # )
+            elif isinstance(event.source, SourceRoom):
+                pass
+            else:
                 line_bot_api.reply_message(
-                    event.reply_token, [
-                        TextSendMessage(text='Display name: ' + profile.display_name),
-                        TextSendMessage(text='Status message: ' + str(profile.status_message)),
-                    ]
-                )
-            if 'message#' in text:
-                talk = text.split('message#', 1)
-                # if talk.__len__ > 1:
-                # line_bot_api.reply_message(
-                #     event.reply_token, [
-                #         TextSendMessage(text=talk[1]),
-                #
-                #     ]
-                # )
-                url = "https://notify-api.line.me/api/notify"
-                data = {'message': talk[1]}
-                headers = {'Authorization': 'Bearer ' + 'Ri4qeh6l4hSlhEuydMpZ7nbE67TpwUirKEiurgEuhtn'}
-                r = requests.post(url, data=data, headers=headers)
-        elif isinstance(event.source, SourceGroup):
-            profile = line_bot_api.get_group_summary(event.source.group_id)
-            grpid = line_bot_api.get_group_member_profile(user_id=event.source.user_id, group_id=event.source.group_id)
-            count = line_bot_api.get_group_members_count(group_id=event.source.group_id)
-            # ids = line_bot_api.get_group_member_ids(group_id=event.source.group_id)#$$$$$$
-
-            # line_bot_api.reply_message(
-            #     event.reply_token, [
-            #         TextSendMessage(text="" ),
-            #
-            #     ]
-            # )
-        elif isinstance(event.source, SourceRoom):
-            pass
-        else:
-            line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text="Bot can't use profile API without user ID"))
+                    event.reply_token,
+                    TextSendMessage(text="Bot can't use profile API without user ID"))
+        except Exception as e:
+            print("handle text" + str(e))
 
     @handler.add(MessageEvent, message=LocationMessage)
     def handle_location_message(event):
@@ -402,7 +423,7 @@ class RepostMessageToLineBot(Resource):
         dispatch_unit = json_body['dispatch_unit']
         groupid = None
         for key in register_group.keys():
-            if register_group[key]['groupname'] ==dispatch_unit:
+            if register_group[key]['groupname'] == dispatch_unit:
                 groupid = key
                 break
         if json_body is not None and groupid is not None:
@@ -414,7 +435,7 @@ class RepostMessageToLineBot(Resource):
         data = {'mission_id': '497d1823-c3b5-4991-a272-e58fb848a329', 'base_unit': '第四河川局',
                 'reportform_id': 'RP12365854', 'dispatch_unit': '第八河川局', 'mission_status': '進行預佈',
                 'pumpcar_num': '8',
-                'location': 'RP12365854', 'remarks': 'RP12365854', 'sender': 'ad',
+                'location': '桃園市中壢區中央西路888號', 'remarks': '氣象局預報大雨即將來襲，請盡速前往進行欲佈作業。', 'sender': 'ad',
                 'create_time': '2020/9/21 14:34:22'}
         # line_bot_api.push_message('Cd2caf66620fdc51721a42d4e395783e2', flexReportMessageTemplate(data))
         return {'success': data}

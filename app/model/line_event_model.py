@@ -1,6 +1,7 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy import Column, Integer, String, Sequence
+
 from app.database.mysql_engine import create_ng_mysql
 
 engine = create_ng_mysql()
@@ -8,6 +9,8 @@ engine = create_ng_mysql()
 db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
 Base = declarative_base()
 Base.query = db_session.query_property()
+
+
 class LineEventData(Base):
     __tablename__ = 'disaster_userlist'
     senderid = Column(String(256), Sequence('user_id'), primary_key=True)
@@ -26,7 +29,6 @@ class LineEventData(Base):
     userid = Column(String(256), unique=False, nullable=False)
     groupname = Column(String(256), unique=True, nullable=False)
     webflag = Column(Integer, unique=False, nullable=False)
-
 
     def to_dict(self):  # 將數據轉為字典
         dictionary = self.__dict__

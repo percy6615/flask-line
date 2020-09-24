@@ -1,9 +1,13 @@
+import os
+from datetime import datetime
+
 from linebot.models import ButtonsTemplate, URIAction, TemplateSendMessage, BubbleContainer, ImageComponent, \
     BoxComponent, TextComponent, IconComponent, SpacerComponent, ButtonComponent, SeparatorComponent, FlexSendMessage
 
-wra_baseuri = 'http://ncsist.wrapoc.tk'
+# wra_baseuri = 'http://ncsist.wrapoc.tk'
+wra_baseuri = 'http://118.163.40.55'
 wra_register = '/registration?openExternalBrowser=1&sender='
-webhook_baseuri = 'https://lineapplicationwra.zapto.org'
+webhook_baseuri = os.getenv('webhook_baseuri')
 image_sign_static = '/static/images/sign_icon.png'
 image_register_static = '/static/images/register.jpg'
 
@@ -25,9 +29,7 @@ def buttonRegisterTemplate(user_id):
 
 
 def flexReportMessageTemplate(jsonObj):
-
-
-
+    create_time_str = datetime.strptime(jsonObj['create_time'], '%Y/%m/%d %H:%M:%S').strftime('%Y/%m/%d %H:%M')
     bubble = {
         "type": "bubble",
         "header": {
@@ -43,7 +45,7 @@ def flexReportMessageTemplate(jsonObj):
                     "contents": [
                         {
                             "type": "icon",
-                            "url": "https://lineapplicationwra.zapto.org/static/images/warning.png"
+                            "url": webhook_baseuri + "/static/images/warning.png"
                         },
                         {
                             "type": "text",
@@ -52,6 +54,15 @@ def flexReportMessageTemplate(jsonObj):
                             "size": "lg",
                             "color": "#FB0000FF",
                             "align": "start",
+                            "contents": []
+                        },
+                        {
+                            "type": "text",
+                            "text": create_time_str,
+                            "weight": "regular",
+                            "size": "xxs",
+                            "color": "#000000FF",
+                            "align": "end",
                             "contents": []
                         }
                     ]
@@ -65,9 +76,9 @@ def flexReportMessageTemplate(jsonObj):
         },
         "hero": {
             "type": "image",
-            "url": "https://lineapplicationwra.zapto.org/static/images/logo.png",
+            "url": webhook_baseuri + "/static/images/logo.png",
             "size": "full",
-            "aspectRatio": "20:13",
+            "aspectRatio": "20:9",
             "aspectMode": "cover",
             "action": {
                 "type": "uri",
@@ -97,13 +108,13 @@ def flexReportMessageTemplate(jsonObj):
                                     "contents": [
                                         {
                                             "type": "icon",
-                                            "url": "https://lineapplicationwra.zapto.org/static/images/iconswater30.png"
+                                            "url": webhook_baseuri + "/static/images/iconswater30.png"
                                         },
                                         {
                                             "type": "text",
                                             "text": "依據",
                                             "size": "sm",
-                                            "color": "#024D13FF",
+                                            "color": "#7EA2F2FF",
                                             "gravity": "top",
                                             "wrap": True,
                                             "decoration": "underline",
@@ -123,10 +134,10 @@ def flexReportMessageTemplate(jsonObj):
                                         },
                                         {
                                             "type": "text",
-                                            "text": jsonObj['base_unit']+" - "+jsonObj['reportform_id'],
+                                            "text": jsonObj['base_unit'] + " - " + jsonObj['reportform_id'],
                                             "weight": "bold",
                                             "size": "sm",
-                                            "color": "#000000FF",
+                                            "color": "#666666FF",
                                             "align": "start",
                                             "gravity": "bottom",
                                             "margin": "xxl",
@@ -147,13 +158,13 @@ def flexReportMessageTemplate(jsonObj):
                                     "contents": [
                                         {
                                             "type": "icon",
-                                            "url": "https://lineapplicationwra.zapto.org/static/images/iconswater30.png"
+                                            "url": webhook_baseuri + "/static/images/iconswater30.png"
                                         },
                                         {
                                             "type": "text",
                                             "text": "支援地點",
                                             "size": "sm",
-                                            "color": "#024D13FF",
+                                            "color": "#7EA2F2FF",
                                             "gravity": "top",
                                             "decoration": "underline",
                                             "contents": []
@@ -175,7 +186,7 @@ def flexReportMessageTemplate(jsonObj):
                                             "text": jsonObj['location'],
                                             "weight": "bold",
                                             "size": "sm",
-                                            "color": "#000000FF",
+                                            "color": "#666666FF",
                                             "align": "start",
                                             "gravity": "top",
                                             "margin": "xxl",
@@ -196,13 +207,13 @@ def flexReportMessageTemplate(jsonObj):
                                     "contents": [
                                         {
                                             "type": "icon",
-                                            "url": "https://lineapplicationwra.zapto.org/static/images/iconswater30.png"
+                                            "url": webhook_baseuri + "/static/images/iconswater30.png"
                                         },
                                         {
                                             "type": "text",
                                             "text": "派遣單位",
                                             "size": "sm",
-                                            "color": "#024D13FF",
+                                            "color": "#7EA2F2FF",
                                             "gravity": "top",
                                             "margin": "xs",
                                             "decoration": "underline",
@@ -225,7 +236,7 @@ def flexReportMessageTemplate(jsonObj):
                                             "text": jsonObj['dispatch_unit'],
                                             "weight": "bold",
                                             "size": "sm",
-                                            "color": "#000000FF",
+                                            "color": "#666666FF",
                                             "align": "start",
                                             "gravity": "bottom",
                                             "margin": "xxl",
@@ -246,13 +257,13 @@ def flexReportMessageTemplate(jsonObj):
                                     "contents": [
                                         {
                                             "type": "icon",
-                                            "url": "https://lineapplicationwra.zapto.org/static/images/iconswater30.png"
+                                            "url": webhook_baseuri + "/static/images/iconswater30.png"
                                         },
                                         {
                                             "type": "text",
                                             "text": "任務狀態",
                                             "size": "sm",
-                                            "color": "#024D13FF",
+                                            "color": "#7EA2F2FF",
                                             "gravity": "top",
                                             "decoration": "underline",
                                             "contents": []
@@ -273,7 +284,7 @@ def flexReportMessageTemplate(jsonObj):
                                             "text": jsonObj['mission_status'],
                                             "weight": "bold",
                                             "size": "sm",
-                                            "color": "#000000FF",
+                                            "color": "#666666FF",
                                             "align": "start",
                                             "gravity": "bottom",
                                             "margin": "xxl",
@@ -294,13 +305,13 @@ def flexReportMessageTemplate(jsonObj):
                                     "contents": [
                                         {
                                             "type": "icon",
-                                            "url": "https://lineapplicationwra.zapto.org/static/images/iconswater30.png"
+                                            "url": webhook_baseuri + "/static/images/iconswater30.png"
                                         },
                                         {
                                             "type": "text",
                                             "text": "抽水車需求",
                                             "size": "sm",
-                                            "color": "#024D13FF",
+                                            "color": "#7EA2F2FF",
                                             "gravity": "top",
                                             "decoration": "underline",
                                             "contents": []
@@ -319,10 +330,10 @@ def flexReportMessageTemplate(jsonObj):
                                         },
                                         {
                                             "type": "text",
-                                            "text": jsonObj['pumpcar_num']+" (輛)",
+                                            "text": jsonObj['pumpcar_num'] + " (輛)",
                                             "weight": "bold",
                                             "size": "sm",
-                                            "color": "#000000FF",
+                                            "color": "#666666FF",
                                             "align": "start",
                                             "gravity": "bottom",
                                             "margin": "xxl",
@@ -343,13 +354,13 @@ def flexReportMessageTemplate(jsonObj):
                                     "contents": [
                                         {
                                             "type": "icon",
-                                            "url": "https://lineapplicationwra.zapto.org/static/images/iconswater30.png"
+                                            "url": webhook_baseuri + "/static/images/iconswater30.png"
                                         },
                                         {
                                             "type": "text",
                                             "text": "備註",
                                             "size": "sm",
-                                            "color": "#024D13FF",
+                                            "color": "#7EA2F2FF",
                                             "align": "start",
                                             "gravity": "top",
                                             "decoration": "underline",
@@ -372,7 +383,7 @@ def flexReportMessageTemplate(jsonObj):
                                             "text": jsonObj['remarks'],
                                             "weight": "bold",
                                             "size": "sm",
-                                            "color": "#000000FF",
+                                            "color": "#666666FF",
                                             "align": "start",
                                             "gravity": "bottom",
                                             "margin": "xxl",
@@ -398,19 +409,38 @@ def flexReportMessageTemplate(jsonObj):
                     "action": {
                         "type": "uri",
                         "label": "回報資訊",
-                        "uri": "http://192.168.4.121:8085/reportpage?mission_id="+jsonObj['mission_id']
+                        "uri": wra_baseuri + "/reportpage?mission_id=" + 'db1a102d-5be6-4cfa-8f0a-8788146bb584'
                     },
                     "color": "#64AAFFFF",
-                    "height": "md",
+                    "height": "sm",
                     "style": "primary",
                     "gravity": "top"
-                }
+                },
+                # {
+                #     "type": "separator",
+                #     "margin": "md"
+                # },
+                # {
+                #     "type": "button",
+                #     "action": {
+                #         "type": "postback",
+                #         "label": "我要回報",
+                #         "data": "ping"
+                #     },
+                #     "color": "#64AAFFFF",
+                #     "margin": "xs",
+                #     "height": "sm",
+                #     "style": "primary"
+                # }
             ]
         }
     }
-    message = FlexSendMessage(alt_text="派遣任務", contents=bubble)
+    message = FlexSendMessage(alt_text="派遣任務:" + jsonObj['reportform_id'] + " (" + create_time_str + ")",
+                              contents=bubble)
     return message
 
+
+# jsonObj['mission_id']
 
 def flexReportMessageTemlate(user_id):
     bubble = BubbleContainer(

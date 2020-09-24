@@ -69,6 +69,8 @@
 # print(b2.getnum())
 # print(b1.getnum())
 #
+from datetime import datetime
+
 import redis
 from geopy import Nominatim
 
@@ -101,7 +103,20 @@ attr_dict = {
 #     print(k)
 
 
-import geocoder
-g = geocoder.arcgis("大肚火車站")
-# g = geocoder.arcgis(u"北京市海淀區上地十街10號")
-print(g)
+# import geocoder
+# g = geocoder.arcgis("大肚火車站")
+# # g = geocoder.arcgis(u"北京市海淀區上地十街10號")
+# print(g)
+
+
+t = {'create_time': '2020/9/21 14:34:22'}
+d = datetime.strptime(t['create_time'], '%Y/%m/%d %H:%M:%S');
+std = d.strftime('%Y/%m/%d %H:%M')
+print(str(std))
+
+# datetime_str = '09/19/18 13:55:26'
+#
+# datetime_object = datetime.strptime(datetime_str, '%m/%d/%y %H:%M:%S')
+#
+# print(type(datetime_object))
+# print(datetime_object)  # printed in default format
