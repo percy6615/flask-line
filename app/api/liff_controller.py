@@ -19,3 +19,10 @@ class LiffControllerIndex(MethodView):
 
     def post(self):
         return 200
+
+class LiffControllerToolsBot(MethodView):
+    def get(self):
+        return render_template('toolsbot.html')
+
+    def post(self):
+        return 200
