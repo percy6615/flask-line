@@ -45,6 +45,7 @@ if channel_secret is None or channel_access_token is None:
     sys.exit(1)
 line_bot_api = LineBotApi(channel_access_token)
 handler = WebhookHandler(channel_secret)
+from flask.views import MethodView
 
 # static_tmp_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'static', 'tmp')
 static_tmp_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'tmp')
@@ -62,8 +63,7 @@ def make_static_tmp_dir():
             raise
 
 
-
-class LineController(Resource):
+class LineController(MethodView):
 
     def __init__(self, *args, **kwargs):
         # super().__init__(*args, **kwargs)
@@ -376,20 +376,20 @@ class LineController(Resource):
                 return True
         return False
 
-
-class StaticPathController(Resource):
+class WebhooksStaticPathController(MethodView):
     # def __init__(self, *args, **kwargs):
     # print()
     # super.__init__(*args, **kwargs)
 
     def get(self, path):
+        # return {"success":path}
         return self.send_static_content(path)
 
-    def send_static_content(path):
+    def send_static_content(self, path):
         return send_from_directory('static', path)
 
 
-class RegisterController(Resource):
+class RegisterController(MethodView):
     # def __init__(self, *args, **kwargs):
     # print()
     # super.__init__(*args, **kwargs)
@@ -417,7 +417,7 @@ class RegisterController(Resource):
             return redirect("http://ncsist.wrapoc.tk/registration", code=200)
 
 
-class RepostMessageToLineBot(Resource):
+class RepostMessageToLineBot(MethodView):
     def post(self):
         json_body = request.get_json()
         dispatch_unit = json_body['dispatch_unit']

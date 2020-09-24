@@ -1,9 +1,21 @@
-from flask import render_template
-from flask_restful import Resource
-import os
-NOTIFY_BIND_URL = f"https://liff.line.me/{os.getenv('LIFF_BIND_ID')}"
-class LiffController(Resource):
+import random
+
+from flask import render_template, request
+
+from flask.views import MethodView
+
+
+class LiffController(MethodView):
     def get(self):
-        return render_template('index.html')
+        return render_template('index.html', param1=str(random.random()))
+
+    def post(self):
+        return 200
+
+
+class LiffControllerIndex(MethodView):
+    def get(self):
+        return render_template('liff.html')
+
     def post(self):
         return 200

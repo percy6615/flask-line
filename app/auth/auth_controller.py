@@ -1,12 +1,13 @@
 import logging
-from flask import request
+from flask import request, render_template
 from flask_restful import Resource
 # from app.auth import routerCache
+from flask.views import MethodView
 
 
-class Fuck1Controller(Resource):
-    #def __init__(self, *args, **kwargs):
-        # super.__init__(*args, **kwargs)
+class Fuck1Controller(MethodView):
+    # def __init__(self, *args, **kwargs):
+    # super.__init__(*args, **kwargs)
 
     def post(self):
         # get X-Line-Signature header value
@@ -20,4 +21,4 @@ class Fuck1Controller(Resource):
 
     # @routerCache.cached()
     def get(self):
-        return "ok"
+        return render_template('index.html')

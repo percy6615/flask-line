@@ -1,9 +1,9 @@
 window.onload = function() {
-    const useNodeJS = true;   // if you are not using a node server, set this value to false
-    const defaultLiffId = "";   // change the default LIFF value if you are not using a node server
+    const useNodeJS = false;   // if you are not using a node server, set this value to false
+    const defaultLiffId = "1654967360-Xxwk42z4";   // change the default LIFF value if you are not using a node server
 
     // DO NOT CHANGE THIS
-    let myLiffId = "";
+    let myLiffId = "1654967360-Xxwk42z4";
 
     // if node is used, fetch the environment variable and pass it to the LIFF method
     // otherwise, pass defaultLiffId
@@ -190,7 +190,7 @@ function registerButtonHandlers() {
         if (liff.isApiAvailable('shareTargetPicker')) {
             liff.shareTargetPicker([{
                 'type': 'text',
-                'text': 'Hello, World!'
+                'text': "{{param1}}"
             }]).then(
                 document.getElementById('shareTargetPickerMessage').textContent = "Share target picker was launched."
             ).catch(function (res) {

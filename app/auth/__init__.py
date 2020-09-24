@@ -1,7 +1,7 @@
 from .. import routerApp
 
-api = routerApp.getApi()
+api = routerApp.getApp()
 # routerCache = routerApp.getCache()
 from .auth_controller import Fuck1Controller
 
-api.add_resource(Fuck1Controller, '/fuck1')
+api.add_url_rule('/fuck1', view_func=Fuck1Controller.as_view('Fuck1Controller'))

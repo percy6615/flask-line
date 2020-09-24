@@ -5,7 +5,6 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_cache import Cache
-from flask_restful import Api
 from flask_bootstrap import Bootstrap
 import os
 from flask_mail import Mail
@@ -20,6 +19,8 @@ basedir = basedirs + '/cache'
 globalInMem = GlobalInMem().handleUserList()
 register_man = globalInMem.getUserList()
 register_group = globalInMem.getGroupList()
+
+
 @singleton
 class FlaskApp:
     def __init__(self):
@@ -33,10 +34,6 @@ class FlaskApp:
         PageDown(self.app)
         self.app.config['JWT_SECRET_KEY'] = 'this-should-be-change'
         self.cache = Cache(self.app, config={'CACHE_TYPE': 'filesystem', 'CACHE_DIR': basedir})
-
-    def getApi(self):
-        api = Api(self.getApp())
-        return api
 
     def getApp(self):
         return self.app
