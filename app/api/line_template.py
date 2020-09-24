@@ -5,12 +5,12 @@ from linebot.models import ButtonsTemplate, URIAction, TemplateSendMessage, Bubb
     BoxComponent, TextComponent, IconComponent, SpacerComponent, ButtonComponent, SeparatorComponent, FlexSendMessage
 
 # wra_baseuri = 'http://ncsist.wrapoc.tk'
-wra_baseuri = 'http://118.163.40.55'
-wra_register = '/registration?openExternalBrowser=1&sender='
-webhook_baseuri = os.getenv('webhook_baseuri')
-image_sign_static = '/static/images/sign_icon.png'
-image_register_static = '/static/images/register.jpg'
 
+webhook_baseuri = os.getenv('webhook_baseuri')
+wra_baseuri = os.getenv('wra_baseuri')
+wra_register = os.getenv('wra_register')
+image_sign_static = os.getenv('image_sign_static')
+image_register_static = os.getenv('image_register_static')
 
 def buttonRegisterTemplate(user_id):
     button_template = ButtonsTemplate(

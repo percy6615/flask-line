@@ -1,10 +1,12 @@
+
 window.onload = function() {
     const useNodeJS = false;   // if you are not using a node server, set this value to false
     const defaultLiffId = "1654967617-ONyq8RJZ";   // change the default LIFF value if you are not using a node server
 
     // DO NOT CHANGE THIS
     let myLiffId = "";
-
+     document.getElementById("flaskcatch").textContent="{{param1}}";
+        console.log(document.getElementById("flaskcatch").innerHTML);
     // if node is used, fetch the environment variable and pass it to the LIFF method
     // otherwise, pass defaultLiffId
     if (useNodeJS) {
@@ -25,6 +27,7 @@ window.onload = function() {
         initializeLiffOrDie(myLiffId);
     }
 };
+
 
 /**
 * Check if myLiffId is null. If null do not initiate liff.

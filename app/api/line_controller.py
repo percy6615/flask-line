@@ -127,12 +127,12 @@ class LineController(MethodView):
         pass
         # line_bot_api.push_message('C13484d958428ce83eba10808c44bbe34', TextSendMessage(text='Hello World!'))
 
-        url = "https://notify-api.line.me/api/notify"
-        data = {'message': 'We did it!'}
-        headers = {'Authorization': 'Bearer ' + '1rU2omMOA2884DVB6Bx119ESfNoWyrO0bIchGjDrwtK'}
-        r = requests.post(url, data=data, headers=headers)
+        # url = "https://notify-api.line.me/api/notify"
+        # data = {'message': 'We did it!'}
+        # headers = {'Authorization': 'Bearer ' + '1rU2omMOA2884DVB6Bx119ESfNoWyrO0bIchGjDrwtK'}
+        # r = requests.post(url, data=data, headers=headers)
 
-        return r.status_code
+        return {'success':200}
 
     @handler.add(MessageEvent, message=TextMessage)
     def handle_text_message(event):

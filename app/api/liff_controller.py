@@ -22,7 +22,7 @@ class LiffControllerIndex(MethodView):
 
 class LiffControllerToolsBot(MethodView):
     def get(self):
-        return render_template('toolsbot.html')
+        return render_template('toolsbot.html', param1=str(random.random()))
 
     def post(self):
         return 200
