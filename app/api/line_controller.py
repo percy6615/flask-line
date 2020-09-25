@@ -49,12 +49,13 @@ from flask.views import MethodView
 
 # static_tmp_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'static', 'tmp')
 static_tmp_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'tmp')
-
+static_disasterpics_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'images', 'disasterpics')
 
 # function for create tmp dir for download content
 def make_static_tmp_dir():
     try:
         os.makedirs(static_tmp_path)
+        os.makedirs(static_disasterpics_path)
         print('make_static_tmp_dir')
     except OSError as exc:
         if exc.errno == errno.EEXIST and os.path.isdir(static_tmp_path):
@@ -132,7 +133,7 @@ class LineController(MethodView):
         # headers = {'Authorization': 'Bearer ' + '1rU2omMOA2884DVB6Bx119ESfNoWyrO0bIchGjDrwtK'}
         # r = requests.post(url, data=data, headers=headers)
 
-        return {'success':200}
+        return {'success': 200}
 
     @handler.add(MessageEvent, message=TextMessage)
     def handle_text_message(event):
@@ -376,7 +377,8 @@ class LineController(MethodView):
                 return True
         return False
 
-class WebhooksStaticPathController(MethodView):
+
+class LineWebhooksStaticPathController(MethodView):
     # def __init__(self, *args, **kwargs):
     # print()
     # super.__init__(*args, **kwargs)
@@ -389,7 +391,7 @@ class WebhooksStaticPathController(MethodView):
         return send_from_directory('static', path)
 
 
-class RegisterController(MethodView):
+class LineRegisterController(MethodView):
     # def __init__(self, *args, **kwargs):
     # print()
     # super.__init__(*args, **kwargs)
@@ -417,7 +419,7 @@ class RegisterController(MethodView):
             return redirect("http://ncsist.wrapoc.tk/registration", code=200)
 
 
-class RepostMessageToLineBot(MethodView):
+class LineRepostMessageToLineBotController(MethodView):
     def post(self):
         json_body = request.get_json()
         dispatch_unit = json_body['dispatch_unit']

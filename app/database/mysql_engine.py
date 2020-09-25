@@ -38,6 +38,9 @@ class MySQLs:
         self.conn = pymysql.connect(host=mysql_host, user=mysql_username, passwd=mysql_pwd, db=mysql_database,
                                     port=int(mysql_port), charset='utf8mb4')
         self.cur = self.conn.cursor()
+        self.cur.execute('SET NAMES utf8')
+        self.cur.execute("SET CHARACTER SET utf8")
+        self.cur.execute("SET character_set_connection=utf8")
 
     @synchronized
     def run(self, sql):
@@ -89,7 +92,7 @@ class MySQLs:
             index = index + 1
         return index_dict
 
-    @synchronized
+
     def get_dict_data_sql(self, sql):
 
         if self.conn is None:

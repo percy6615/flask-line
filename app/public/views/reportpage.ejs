@@ -1,0 +1,217 @@
+<html lang="en" data-livestyle-extension="available"><head>
+    <title>任務回報-水利署防救災決策輔助系統</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="/javascript/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/views/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/views/font-awesome/css/icon-font.min.css">
+    <link rel="stylesheet" type="text/css" href="/views/vendor/animate/animate.css">
+    <link rel="stylesheet" type="text/css" href="/views/vendor/css-hamburgers/hamburgers.min.css">
+    <link rel="stylesheet" type="text/css" href="/views/vendor/animsition/css/animsition.min.css">
+    <link rel="stylesheet" type="text/css" href="/views/vendor/select2/select2.min.css">
+    <link rel="stylesheet" type="text/css" href="/views/vendor/daterangepicker/daterangepicker.css">
+    <link rel="stylesheet" type="text/css" href="/views/css/regist/util.css">
+    <link rel="stylesheet" type="text/css" href="/views/css/regist/main.css">
+
+    <script type="text/javascript" async="" src="https://www.google-analytics.com/analytics.js"></script><script type="text/javascript" async="" src="https://www.google-analytics.com/analytics.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"> charset="utf-8"</script>
+    <script src="/views/vendor/animsition/js/animsition.min.js" type="text/javascript"></script>
+    <script src="/views/vendor/bootstrap/js/popper.js" type="text/javascript"></script>
+    <script src="/javascript/bootstrap/js/bootstrap.min.js"> charset="utf-8"</script>
+    <script src="/views/vendor/select2/select2.min.js" type="text/javascript"></script>
+    <script src="/views/vendor/daterangepicker/moment.min.js" type="text/javascript"></script>
+    <script src="/views/vendor/daterangepicker/daterangepicker.js" type="text/javascript"></script>
+    <script src="/views/vendor/countdowntime/countdowntime.js" type="text/javascript"></script>
+    <script src="/javascript/reportpage.js" type="text/javascript"></script>
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-23581568-13" type="text/javascript"></script>
+    <style>
+        /* Reset Select */
+        select {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        -ms-appearance: none;
+        appearance: none;
+        outline: 0;
+        box-shadow: none;
+        border: 0 !important;
+        background: #2c3e50;
+        background-image: none;
+        }
+        /* Remove IE arrow */
+        select::-ms-expand {
+        display: none;
+        }
+        /* Custom Select */
+        .select {
+        position: relative;
+        display: flex;
+        width: 100%;
+        height: 2em;
+        line-height: 2;
+        background: #2c3e50;
+        overflow: hidden;
+        border-radius: .25em;
+        }
+        select {
+        flex: 1;
+        padding: 0 .5em;
+        color: #fff;
+        cursor: pointer;
+        }
+        /* Arrow */
+        .select::after {
+        content: '\25BC';
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding: 0 1em;
+        background: #34495e;
+        cursor: pointer;
+        pointer-events: none;
+        -webkit-transition: .25s all ease;
+        -o-transition: .25s all ease;
+        transition: .25s all ease;
+        }
+        /* Transition */
+        .select:hover::after {
+        color: #f39c12;
+        }
+        input{
+             background-color: #e0e0e026;
+        }
+    </style>
+    </head>
+
+    <body>
+        <div class="limiter">
+        <div class="container-login100">
+        <div class="wrap-login100 p-l-35 p-r-35 p-t-35 p-b-35" style="width: 500px;">
+            <div class="login100-form validate-form">
+                <span class="login100-form-title p-b-33">任務回報</span>
+                <div class="container-fluid">
+                    <div class="row" style="margin-bottom:15px;">
+                      <div class="col-md-4">依據</div>
+                      <div class="col-md-6">
+                        <div class="col-md-6" style="padding-right: 0px;padding-left: 0px;">
+                            <input class="input" id="input_base" type="text" name="input" disabled>
+                          </div>
+                      </div>
+                    </div>
+                    <div class="row" style="margin-bottom:15px;">
+                      <div class="col-md-4">任務需求</div>
+                      <div class="col-md-6">
+                        <div class="col-md-6" style="padding-right: 0px; padding-left: 0px;">
+                            <input class="input" id="input_mission_location" type="text" name="input" disabled>
+                          </div>
+                      </div>
+                    </div>
+                    <div class="row" style="margin-bottom:15px;">
+                      <div class="col-md-4">需求數量(輛)</div>
+                      <div class="col-md-6">
+                        <div class="col-md-6" style="padding-right: 0px; padding-left: 0px;">
+                            <input class="input" id="input_num" type="text" name="input" disabled>
+                          </div>
+                      </div>
+                    </div>
+                    <div class="row" style="margin-bottom:15px;">
+                      <div class="col-md-4">補充說明</div>
+                      <div class="col-md-6">
+                        <div class="col-md-6" style="padding-right: 0px; padding-left: 0px;">
+                            <textarea id="input_remarks" rows="5" cols="30" disabled></textarea>
+                          </div>
+                      </div>
+                    </div>
+                    <div class="row" style="margin-bottom:15px;">
+                      <div class="col-md-4">派遣抽水車</div>
+                      <div id="car_list" class="col-md-6">
+                        <!-- <input type="checkbox" id="vehicle1" name="vehicle1" value="二河-01">
+                        <label for="vehicle1">二河-01</label><br>
+                        <input type="checkbox" id="vehicle2" name="vehicle2" value="二河-02">
+                        <label for="vehicle2">二河-02</label><br>
+                        <input type="checkbox" id="vehicle3" name="vehicle3" value="二河-03">
+                        <label for="vehicle3">二河-03</label><br>
+                        <input type="checkbox" id="vehicle4" name="vehicle4" value="二河-04">
+                        <label for="vehicle4">二河-04</label><br>  -->
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-4">現場狀況</div>
+                        <div class="col-md-6 select" style="margin-bottom:15px;">
+                            <select name="slct" id="status_select">
+                            <option selected="" disabled="">選擇現場狀況</option>
+                            <option value="1">待命中</option>
+                            <option value="2">運送中</option>
+                            <option value="3">抽水中</option>
+                            <option value="4">離線</option>
+                            </select>
+                        </div>
+                      </div>
+                    <div class="row">
+                        <div class="col-md-4">淹水深度(公分)</div>
+                          <div class="col-md-6 select" style="margin-bottom:15px;">
+                              <select name="slct" id="deep_select">
+                              <option selected="" disabled="">選擇淹水深度(cm)</option>
+                              <option value="&lt;30">&lt;30</option>
+                              <option value="35">35</option>
+                              <option value="40">40</option>
+                              <option value="45">45</option>
+                              <option value="50">50</option>
+                              <option value="65">65</option>
+                              <option value="70">70</option>
+                              <option value="75">75</option>
+                              <option value="80">80</option>
+                              <option value="&gt;80">&gt;80</option>
+                              </select>
+                            </div>
+                        </div>
+                    <div class="row" style="margin-bottom:15px;">
+                        <div class="col-md-4">現場照片</div>
+                        <div class="col-md-6" style="padding-right: 0px; padding-left: 0px;">
+                            <input type="file" accept="image/*" id="btn_upload" onchange="validateImage()">
+                            <script type="text/javascript">
+                                function validateImage() {
+                                    var formData = new FormData();
+                                    var file = document.getElementById("btn_upload").files[0];
+                                    formData.append("Filedata", file);
+                                    var t = file.type.split('/').pop().toLowerCase();
+                                    if (t != "jpeg" && t != "jpg" && t != "png" && t != "bmp" && t != "gif") {
+                                        alert('請上傳圖檔格式的檔案!');
+                                        document.getElementById("btn_upload").value = '';
+                                        return false;
+                                    }
+                                    // if (file.size > 1024000) {
+                                    //     alert('Max Upload size is 1MB only');
+                                    //     document.getElementById("img").value = '';
+                                    //     return false;
+                                    // }
+                                    var reader = new FileReader();
+
+                                    reader.onload = function (e) {
+                                        $('#image_preview').attr('src', e.target.result)
+                                    };
+                                    reader.readAsDataURL(file);
+                                    return true;
+                                }
+                            </script>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-bottom:15px;">
+                        <div class="col-md-12" style="width: 100%;">
+                            <img id="image_preview" style="display: table; margin: 0 auto; width: 80%; height: auto; max-height: 500px;">
+                        </div>
+                    </div>
+                <div class="container-login100-form-btn m-t-20">
+                    <button class="login100-form-btn" id="signUp">回報</button>
+                </div>
+            </div>
+        </div>
+        </div>
+        </div>
+            <script type="text/javascript">
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'UA-23581568-13');
+            </script>
+    
+    </div></body></html>

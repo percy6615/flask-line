@@ -1,0 +1,1015 @@
+<!DOCTYPE html>  
+ <html>  
+ <head>  
+  <meta charset="utf-8">  
+    <title>水利署防救災決策輔助系統</title>  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.2.1/css/ol.css" type="text/css">
+    <link rel="stylesheet" href="/javascript/bootstrap/css/bootstrap.min.css" type="text/css">
+    <link rel="stylesheet" href="/views/css/style.css" type="text/css">
+    <link rel="stylesheet" href="/views/css/all_style.css" type="text/css">
+    <link rel="stylesheet" href="/views/font-awesome/css/all.min.css">
+    <link rel="stylesheet" href="/views/css/map_style.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    <script src="/javascript/chartjs-plugin-annotation/chartjs-plugin-annotation.js"></script>
+    <script src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.2.1/build/ol.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"> charset="utf-8"</script>
+    <script src="/javascript/bootstrap/js/bootstrap.min.js"> charset="utf-8"</script>
+    <script src="/javascript/main.js"> charset="utf-8"</script>
+    <script src="/socket.io/socket.io.js" charset="utf-8"></script>
+    <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script> 
+    <style>
+      .map 
+      {
+        width: 100%;
+        height: 100%;
+      }
+      .short-div 
+      {
+        min-height: 50%;
+        height: 50%;
+      }
+      .fill 
+      { 
+        min-height: 100%;
+        height: 100%;
+      }
+      .rowfill 
+      { 
+        min-height: 100%;
+        height: 100%;
+      }
+
+       /* Reset Select */
+       select {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        -ms-appearance: none;
+        appearance: none;
+        outline: 0;
+        box-shadow: none;
+        border: 0 !important;
+        background: #2c3e50;
+        background-image: none;
+        }
+        /* Remove IE arrow */
+        select::-ms-expand {
+        display: none;
+        }
+        /* Custom Select */
+        .select {
+        position: relative;
+        display: flex;
+        width: 300px;
+        height: 2em;
+        line-height: 2;
+        background: #2c3e50;
+        overflow: hidden;
+        border-radius: .25em;
+        }
+        select {
+        flex: 1;
+        padding: 0 .5em;
+        color: #fff;
+        cursor: pointer;
+        }
+        /* Arrow */
+        .select::after {
+        content: '\25BC';
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding: 0 1em;
+        background: #34495e;
+        cursor: pointer;
+        pointer-events: none;
+        -webkit-transition: .25s all ease;
+        -o-transition: .25s all ease;
+        transition: .25s all ease;
+        }
+        /* Transition */
+        .select:hover::after {
+        color: #f39c12;
+        }
+    </style>
+      
+ </head>  
+ <body id="page-top">  
+  <div id="wrapper">
+ 
+    <!-- Sidebar -->
+    <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion toggled" id="accordionSidebar" > <!--style="overflow-y: scroll; height:400px;"-->
+      <!-- Sidebar - Brand -->
+      <div class="sidebar-brand d-flex align-items-center justify-content-center">
+        <div class="sidebar-brand-icon">
+          <!-- <img src="/icons/category.png"></i> -->
+
+              <!-- <img id="btn_logout" class="img-profile rounded-circle" src="/icons/account.png" > 
+              <div id="user_name" class="sidebar-brand-text mx-3"><sup></sup></div> -->
+              <img class="img-profile rounded-circle" src="/icons/account.png" >
+              <br>
+              <a id="btn_logout" href="" style="font-size:14px;color:rgb(192, 187, 187)">登出</a>
+        </div>
+        <!-- <div class="sidebar-brand-text mx-3">功能選單 <sup></sup></div> -->
+      </div>
+
+      <!-- Divider -->
+      <!-- <hr class="sidebar-divider my-0"> -->
+
+      <!-- Nav Item - Dashboard -->
+      <!-- <li class="nav-item active">
+        <a class="nav-link" href="index.html">
+          <i class="fas fa-fw fa-tachometer-alt"></i>
+          <span>Dashboard</span></a>
+      </li> -->
+
+      <!-- Divider -->
+      <hr class="sidebar-divider">
+
+      <!-- Heading -->
+      <div class="sidebar-heading">
+        圖層工具
+      </div>
+
+       <!-- Nav Item - rain fall station Menu -->
+       <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#disasterUtilities" aria-expanded="true" aria-controls="disasterUtilities">
+          <img src="/icons/disaster.png"></i>
+          <span>災情點</span>
+        </a>
+        <div id="disasterUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">類別</h6>
+            <div id="flooding_disaster" class="collapse-item" name="disasterlayer">
+              <img id="flooding" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;淹水災情
+            </div>
+            <!-- <div id="tenp1_disaster" class="collapse-item" name="disasterlayer">
+              <img id="temp1" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;待放
+            </div>
+            <div id="temp2_disaster" class="collapse-item" name="disasterlayer">
+              <img id="temp2" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;待放
+            </div>
+            <div id="temp3_disaster" class="collapse-item" name="disasterlayer">
+              <img id="temp3" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;待放
+            </div>
+            <div id="disaster_all" class="collapse-item">
+              <img id="disasterAll" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;全選
+            </div> -->
+          </div>
+        </div>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#floodingSensorUtilities" aria-expanded="true" aria-controls="floodingSensorUtilities">
+          <img src="/icons/flood.png"></i>
+          <span>淹水感測器</span>
+        </a>
+        <div id="floodingSensorUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">類別</h6>
+            <div id="floodingSensorAlert" class="collapse-item" name="floodingSensorlayer">
+              <img id="sensorAlert" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;已達警戒
+            </div>
+            <div id="floodingSensor" class="collapse-item" name="floodingSensorlayer">
+              <img id="sensor" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;未達警戒
+            </div>
+            <div id="floodingSensor_all" class="collapse-item" name="disasterlayer">
+              <img id="sensorAll" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;全選
+            </div>
+           <!-- <div id="temp2_disaster" class="collapse-item" name="disasterlayer">
+              <img id="temp2" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;待放
+            </div>
+            <div id="temp3_disaster" class="collapse-item" name="disasterlayer">
+              <img id="temp3" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;待放
+            </div>
+            <div id="disaster_all" class="collapse-item">
+              <img id="disasterAll" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;全選
+            </div> -->
+          </div>
+        </div>
+      </li>
+
+      <!-- Nav Item - water level Menu -->
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+          <img src="/icons/water_level_station.png"></i>
+          <span>水位站</span>
+        </a>
+        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">警戒值</h6>
+            <div id="level_1" class="collapse-item" name="layer">
+              <img id="lv1" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;一級警戒
+            </div>
+            <div id="level_2" class="collapse-item" name="layer">
+              <img id="lv2" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;二級警戒
+            </div>
+            <div id="level_3" class="collapse-item" name="layer">
+              <img id="lv3" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;三級警戒
+            </div>
+            <div id="level_0" class="collapse-item" name="layer">
+              <img id="lv0" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;未達警戒
+            </div>
+            <div id="level_noValue" class="collapse-item" name="layer">
+              <img id="lvno" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;水位計故障
+            </div>
+            <div id="level_all" class="collapse-item">
+              <img id="lvAll" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;全選
+            </div>
+          </div>
+        </div>
+      </li>
+
+      <!-- Nav Item - rain fall station Menu -->
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities" aria-expanded="true" aria-controls="collapseUtilities">
+          <img src="/icons/hygrometer32.png"></i>
+          <span>雨量站</span>
+        </a>
+        <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">警戒值</h6>
+            <div id="rainlevel_1" class="collapse-item" name="rainlayer">
+              <img id="rainlv1" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;一級警戒
+            </div>
+            <div id="rainlevel_2" class="collapse-item" name="rainlayer">
+              <img id="rainlv2" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;二級警戒
+            </div>
+            <div id="rainlevel_0" class="collapse-item" name="rainlayer">
+              <img id="rainlv0" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;未達警戒
+            </div>
+            <div id="rainlevel_noValue" class="collapse-item" name="rainlayer">
+              <img id="rainlvno" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;雨量計故障
+            </div>
+            <div id="rainlevel_all" class="collapse-item">
+              <img id="rainlvAll" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;全選
+            </div>
+          </div>
+        </div>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#cctvUtilities" aria-expanded="true" aria-controls="cctvUtilities">
+          <img src="/icons/cctv.png"></i>
+          <span>CCTV</span>
+        </a>
+        <div id="cctvUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">類別</h6>
+            <div id="cctv_pos" class="collapse-item" name="cctvlayer">
+              <img id="cctv" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;水利署CCTV
+            </div>
+            <div id="cctv_pos2" class="collapse-item" name="cctvlayer">
+              <img id="cctv2" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;公路總局CCTV
+            </div>
+            <!-- <div id="temp2_disaster" class="collapse-item" name="disasterlayer">
+              <img id="temp2" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;待放
+            </div>
+            <div id="temp3_disaster" class="collapse-item" name="disasterlayer">
+              <img id="temp3" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;待放
+            </div>-->
+            <div id="cctv_all" class="collapse-item">
+              <img id="cctvAll" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;全選
+            </div> 
+          </div>
+        </div>
+      </li>
+
+      <!-- 抽水機位置-->
+
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#volunteerUtilities" aria-expanded="true" aria-controls="volunteerUtilities">
+          <img src="/icons/volunteer.png"></i>
+          <span>防汛志工</span>
+        </a>
+        <div id="volunteerUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">類別</h6>
+            <div id="volunteer_pos" class="collapse-item" name="volunteerlayer">
+              <img id="volunteer" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;防汛志工
+            </div>
+            <!-- <div id="tenp1_disaster" class="collapse-item" name="disasterlayer">
+              <img id="temp1" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;待放
+            </div>
+            <div id="temp2_disaster" class="collapse-item" name="disasterlayer">
+              <img id="temp2" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;待放
+            </div>
+            <div id="temp3_disaster" class="collapse-item" name="disasterlayer">
+              <img id="temp3" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;待放
+            </div>
+            <div id="disaster_all" class="collapse-item">
+              <img id="disasterAll" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;全選
+            </div> -->
+          </div>
+        </div>
+      </li>
+     
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#communityUtilities" aria-expanded="true" aria-controls="communityUtilities">
+          <img src="/icons/community.png"></i>
+          <span>自主災防社區</span>
+        </a>
+        <div id="communityUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">類別</h6>
+            <div id="community_pos" class="collapse-item" name="communitylayer">
+              <img id="community" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;自主災防社區地點
+            </div>
+            <!-- <div id="tenp1_disaster" class="collapse-item" name="disasterlayer">
+              <img id="temp1" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;待放
+            </div>
+            <div id="temp2_disaster" class="collapse-item" name="disasterlayer">
+              <img id="temp2" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;待放
+            </div>
+            <div id="temp3_disaster" class="collapse-item" name="disasterlayer">
+              <img id="temp3" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;待放
+            </div>
+            <div id="disaster_all" class="collapse-item">
+              <img id="disasterAll" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;全選
+            </div> -->
+          </div>
+        </div>
+      </li>
+      
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#socialUtilities" aria-expanded="true" aria-controls="socialUtilities">
+          <img src="/icons/social_welfare.png"></i>
+          <span>社福機構</span>
+        </a>
+        <div id="socialUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">類別</h6>
+            <div id="social_pos" class="collapse-item" name="sociallayer">
+              <img id="social" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;社福機構地點
+            </div>
+            <!-- <div id="tenp1_disaster" class="collapse-item" name="disasterlayer">
+              <img id="temp1" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;待放
+            </div>
+            <div id="temp2_disaster" class="collapse-item" name="disasterlayer">
+              <img id="temp2" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;待放
+            </div>
+            <div id="temp3_disaster" class="collapse-item" name="disasterlayer">
+              <img id="temp3" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;待放
+            </div>
+            <div id="disaster_all" class="collapse-item">
+              <img id="disasterAll" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;全選
+            </div> -->
+          </div>
+        </div>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#pumpUtilities" aria-expanded="true" aria-controls="pumpUtilities">
+          <img src="/icons/water-pump.png"></i>
+          <span>移動式抽水機</span>
+        </a>
+        <div id="pumpUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">類別</h6>
+            <div id="pump_pos" class="collapse-item" name="pumplayer">
+              <img id="pump" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;移動式抽水機
+            </div>
+            <!-- <div id="tenp1_disaster" class="collapse-item" name="disasterlayer">
+              <img id="temp1" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;待放
+            </div>
+            <div id="temp2_disaster" class="collapse-item" name="disasterlayer">
+              <img id="temp2" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;待放
+            </div>
+            <div id="temp3_disaster" class="collapse-item" name="disasterlayer">
+              <img id="temp3" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;待放
+            </div>
+            <div id="disaster_all" class="collapse-item">
+              <img id="disasterAll" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;全選
+            </div> -->
+          </div>
+        </div>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#pumpStationUtilities" aria-expanded="true" aria-controls="pumpStationUtilities">
+          <img src="/icons/water_pump_station.png"></i>
+          <span>抽水站</span>
+        </a>
+        <div id="pumpStationUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">類別</h6>
+            <div id="pumpStation_pos" class="collapse-item" name="pumpStationlayer">
+              <img id="pumpStation1" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;抽水站(河海提供)
+            </div>
+            <div id="pumpStation_pos2" class="collapse-item" name="pumpStationlayer">
+              <img id="pumpStation2" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;淡水河流域抽水站(十河局提供)
+            </div>
+            <!-- <div id="temp2_disaster" class="collapse-item" name="disasterlayer">
+              <img id="temp2" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;待放
+            </div>
+            <div id="temp3_disaster" class="collapse-item" name="disasterlayer">
+              <img id="temp3" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;待放
+            </div>-->
+            <div id="pumpStation_all" class="collapse-item">
+              <img id="pumpStationAll" src=/icons/checked.png style="display:none"></img>&nbsp;&nbsp;&nbsp;全選
+            </div> 
+          </div>
+        </div>
+      </li>
+     
+      <!-- Divider
+      <hr class="sidebar-divider"> -->
+
+      <!-- Heading
+      <div class="sidebar-heading"> -->
+        <!-- Addons
+      </div> -->
+
+      <!-- Nav Item - Pages Collapse Menu -->
+      <!-- <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages" aria-expanded="true" aria-controls="collapsePages">
+          <i class="fas fa-fw fa-folder"></i>
+          <span>Pages</span>
+        </a>
+        <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">Login Screens:</h6>
+            <a class="collapse-item" href="login.html">Login</a>
+            <a class="collapse-item" href="register.html">Register</a>
+            <a class="collapse-item" href="forgot-password.html">Forgot Password</a>
+            <div class="collapse-divider"></div>
+            <h6 class="collapse-header">Other Pages:</h6>
+            <a class="collapse-item" href="404.html">404 Page</a>
+            <a class="collapse-item" href="blank.html">Blank Page</a>
+          </div>
+        </div>
+      </li> -->
+
+      <!-- Nav Item - Charts -->
+      <!-- <li class="nav-item">
+        <a class="nav-link" href="charts.html">
+          <i class="fas fa-fw fa-chart-area"></i>
+          <span>Charts</span></a>
+      </li> -->
+
+      <!-- Nav Item - Tables -->
+      <!-- <li class="nav-item">
+        <a class="nav-link" href="tables.html">
+          <i class="fas fa-fw fa-table"></i>
+          <span>Tables</span></a>
+      </li> -->
+
+      <!-- Divider -->
+      <!-- <hr class="sidebar-divider d-none d-md-block"> -->
+
+      <!-- Sidebar Toggler (Sidebar) -->
+      <div class="text-center d-none d-md-inline">
+        <button class="rounded-circle border-0" id="sidebarToggle"></button>
+      </div>
+
+    </ul>
+    <!-- End of Sidebar -->
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex "><!--flex-column-->
+
+      <!-- Main Content -->
+      <div id="content">
+
+        <!-- Topbar -->
+        <!-- <nav class="navbar navbar-expand navbar-light bg-wra topbar  static-top shadow"> -->
+          <!-- Topbar Title -->
+          <!-- <h1>
+            <img src="/icons/logo-brand.png" height="70" width="313"></img>
+          </h1> -->
+          <!-- Topbar Navbar -->
+          <!-- <ul class="navbar-nav ml-auto"> -->
+
+            <!-- Nav Item - Search Dropdown (Visible Only XS) -->
+            <!-- <li class="nav-item dropdown no-arrow d-sm-none">
+              <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-search fa-fw"></i>
+              </a> -->
+              <!-- Dropdown - Messages -->
+              <!-- <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in" aria-labelledby="searchDropdown">
+                <form class="form-inline mr-auto w-100 navbar-search">
+                  <div class="input-group">
+                    <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
+                    <div class="input-group-append">
+                      <button class="btn btn-primary" type="button">
+                        <i class="fas fa-search fa-sm"></i>
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </li>
+            <div class="topbar-divider d-none d-sm-block"></div> -->
+            <!-- Nav Item - User Information -->
+            <!-- <li class="nav-item dropdown no-arrow">
+              <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="mr-2 d-none d-lg-inline text-gray-600 small" id="user_name"></span>
+                <img class="img-profile rounded-circle" src="/icons/account.png" >
+              </a> -->
+              <!-- Dropdown - User Information -->
+              <!-- <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown"> -->
+                <!-- <a class="dropdown-item" href="#">
+                  <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                  Profile
+                </a>
+                <a class="dropdown-item" href="#">
+                  <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
+                  Settings
+                </a>
+                <a class="dropdown-item" href="#">
+                  <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
+                  Activity Log
+                </a>
+                <div class="dropdown-divider"></div> -->
+                <!-- <a class="dropdown-item" id="btn_logout" href="#" data-toggle="modal" data-target="#logoutModal">
+                  <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                  登出
+                </a>
+              </div>
+            </li>
+          </ul>
+        </nav> -->
+        <!-- End of Topbar -->
+
+        <!-- Begin Page Content container-fluid -->
+        <div class="container-fluid-map fill">
+          <div id="map" class="map"></div>
+              <div id="popup" class="ol-popup">
+                <a href="#" id="popup-closer" class="ol-popup-closer" style="position: absolute;"></a>
+                <div id="markerTitle"></div>
+                <ul id="tab" class="nav nav-tabs"></ul>
+                <div id="popup-content" class="tab-content">
+                  <div class="tab-pane fade in active show" id="data"></div>
+                  <div class="tab-pane fade" id="chart"></div>
+                  <div class="tab-pane fade" id="relative">
+                    <div class="list-group" id="relative-list"></div>
+                  </div>
+                </div>
+              </div>
+              <div id="popup_cctv" class="ol-popup">
+                <a href="#" id="popup-closer2" class="ol-popup-closer"></a>
+                <div id="markerTitle2"></div>
+                <ul id="tab" class="nav nav-tabs"></ul>
+                <div id="popup-content2">
+                  <div id="cctvCarousel" class="carousel slide" data-interval="false" data-ride="carousel">
+                    <ol id="cctvIndicators" class="carousel-indicators">
+                    </ol>
+                    <div id="cctvCarouselInner"  class="carousel-inner">
+                    </div>
+                    <a class="carousel-control-prev" href="#cctvCarousel" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="carousel-control-next" href="#cctvCarousel" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                    </a>
+                    </div>
+                    <div id="cctvData" style="background-color: cadetblue;">
+                      <!-- <code>站點編號:9</code><br><code>站點名稱:曾文水庫</code><br><code>所屬流域:曾文溪流域</code><br><code>地點:嘉義縣大埔鄉</code><br><code></code></div> -->
+                    </div>
+                </div>
+              </div>
+
+             <!-- <div class="searchbar" style="position: absolute; top:10px;right:2rem;">
+                <input class="search_input" type="text" name="" placeholder="此功能尚未完成...">
+                <a href="#" class="search_icon"><i class="fas fa-search"></i></a>
+                 <ul id="myUL">
+                  <li><a href="#">Adele</a></li>
+                  <li><a href="#">Agnes</a></li>
+                  <li><a href="#">Billy</a></li>
+                  <li><a href="#">Bob</a></li>
+                  <li><a href="#">Calvin</a></li>
+                  <li><a href="#">Christina</a></li>
+                  <li><a href="#">Cindy</a></li>
+                </ul> 
+            </div>-->
+           
+            <div style="position: absolute; bottom:15px; left:9rem;">
+              <button id="floatPost" class="btn pmd-btn-fab pmd-ripple-effect  pmd-btn-raised" data-toggle="modal" data-target="#DisasterFormModal" type="button"><img src="/icons/dashboard.png"></img><br>任務管制</button>
+            </div> <!--style="display: none;"-->
+
+            <div id="DisasterFormModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="disasterModalLabel" aria-hidden="true" style="display: none;">
+              <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="disasterModalLabel">派遣任務管制表</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="container-fluid bd-example-row">
+                      <div class="row">
+                        <!-- <div class="col-md-4">.col-md-4</div>
+                        <div class="col-md-4 ml-auto">.col-md-4 .ml-auto</div> -->
+                        <table id="mission_table" class="display" style="width:180%">
+                          <thead>
+                              <tr>
+                                  <th>編號</th>
+                                  <th>依據單位</th>
+                                  <th>通報單編號</th>
+                                  <th>派遣單位</th>
+                                  <th>支援地點</th>
+                                  <th>任務</th>
+                                  <th>抽水機需求(輛)</th>
+                                  <th>派遣抽水機</th>
+                                  <th>現場狀況</th>
+                                  <th>淹水深度(公分)</th>
+                                  <!-- <th>現場照片</th> -->
+                                  <th>聯絡人</th>
+                                  <th>已讀</th>
+                                  <th>備註</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              <!-- <tr>
+                                  <td>1</td>
+                                  <td>第一河川局</td>
+                                  <td>002</td>
+                                  <td>第二河川局</td>
+                                  <td>舊港里</td>
+                                  <td>上車待命</td>
+                                  <td>3</td>
+                                  <td>二河-01
+                                    二河-02</td>
+                                  <td>運送中</td>
+                                  <td>35</td> -->
+                                  <!-- <td></td> -->
+                                  <!-- <td>王曉明</td>
+                                  <td>V</td>
+                                  <td>小心點</td> -->
+                              <!-- </tr>
+                              <tr>
+                                  <td>2</td>
+                                  <td>第二河川局</td>
+                                  <td>002</td>
+                                  <td>第二河川局</td>
+                                  <td>青草湖</td>
+                                  <td>立即支援</td>
+                                  <td>3</td>
+                                  <td>二河-03
+                                    二河-04</td>
+                                  <td>運送中</td>
+                                  <td>60</td> -->
+                                  <!-- <td></td> -->
+                                  <!-- <td>李曉華</td>
+                                  <td></td>
+                                  <td>小心點</td>
+                              </tr>
+                          </tbody> -->
+                          <!-- <tfoot>
+                              <tr>
+                                  <th>Name</th>
+                                  <th>Position</th>
+                                  <th>Office</th>
+                                  <th>Age</th>
+                                  <th>Start date</th>
+                                  <th>Salary</th>
+                              </tr>
+                          </tfoot> -->
+                      </table>
+                      </div>
+                      <!-- <div class="row">
+                        <div class="col-md-3 ml-auto">.col-md-3 .ml-auto</div>
+                        <div class="col-md-2 ml-auto">.col-md-2 .ml-auto</div>
+                      </div>
+                      <div class="row">
+                        <div class="col-md-6 ml-auto">.col-md-6 .ml-auto</div>
+                      </div>
+                      <div class="row">
+                        <div class="col-sm-9">
+                          Level 1: .col-sm-9 
+                            <div class="row">
+                            <div class="col-8 col-sm-6">
+                              Level 2: .col-8 .col-sm-6
+                            </div>
+                            <div class="col-4 col-sm-6">
+                              Level 2: .col-4 .col-sm-6
+                            </div>
+                          </div> 
+                        </div>
+                      </div> -->
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#DisasterAddModal">新增</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div id="DisasterAddModal" class="modal fade" tabindex="-1" role="dialog">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">新增任務</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="container-fluid">
+                      <div class="row" style="margin-bottom:15px;">
+                        <div class="col-md-3">依據單位</div>
+                        <div class="col-md-6 select">
+                          <select name="slct" id="unit_select">
+                          <option selected disabled>選擇依據單位</option>
+                          <option value="1">第一河川局</option>
+                          <option value="2">第二河川局</option>
+                          <option value="3">第三河川局</option>
+                          <option value="4">第四河川局</option>
+                          <option value="5">第五河川局</option>
+                          <option value="6">第六河川局</option>
+                          <option value="7">第七河川局</option>
+                          <option value="8">第八河川局</option>
+                          <option value="9">第九河川局</option>
+                          <option value="10">第十河川局</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="row" style="margin-bottom:15px;">
+                        <div class="col-md-3">通報單編號</div>
+                        <div class="col-md-6" style="padding-right: 0px; padding-left: 0px;">
+                          <input class="input100" id="input_no" type="text" name="input" style="width: 100%;">
+                        </div>
+                      </div>
+                      <div class="row" style="margin-bottom:15px;">
+                        <div class="col-md-3">派遣單位</div>
+                        <div class="col-md-6 select">
+                          <select name="slct" id="unit_dispatch">
+                          <option selected disabled>選擇派遣單位</option>
+                          <option value="1">第一河川局</option>
+                          <option value="2">第二河川局</option>
+                          <option value="3">第三河川局</option>
+                          <option value="4">第四河川局</option>
+                          <option value="5">第五河川局</option>
+                          <option value="6">第六河川局</option>
+                          <option value="7">第七河川局</option>
+                          <option value="8">第八河川局</option>
+                          <option value="9">第九河川局</option>
+                          <option value="10">第十河川局</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="row" style="margin-bottom:15px;">
+                        <div class="col-md-3">任務</div>
+                        <div class="col-md-6 select">
+                          <select name="slct" id="mission_select">
+                          <option selected disabled>選擇指派任務</option>
+                          <option value="1">上車待命</option>
+                          <option value="2">進行預佈</option>
+                          <option value="3">立即支援</option>
+                          <option value="4">任務解除</option>
+                          <option value="5">解除上車待命</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="row" style="margin-bottom:15px;">
+                        <div class="col-md-3">抽水車需求</div>
+                        <div class="col-md-6 select">
+                          <select name="slct" id="num_select">
+                          <option selected disabled>選擇輛數</option>
+                          <option value="1">1輛</option>
+                          <option value="2">2輛</option>
+                          <option value="3">3輛</option>
+                          <option value="4">4輛</option>
+                          <option value="5">5輛</option>
+                          <option value="6">6輛</option>
+                          <option value="7">7輛</option>
+                          <option value="8">8輛</option>
+                          <option value="9">9輛</option>
+                          <option value="10">10輛</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="row" style="margin-bottom:15px;">
+                        <div class="col-md-3">支援地點</div>
+                        <div class="col-md-6" style="padding-right: 0px; padding-left: 0px;">
+                          <input class="input100" id="input_location" type="text" name="input" style="width: 100%;">
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-md-3">備註</div>
+                        <div class="col-md-6" style="padding-right: 0px; padding-left: 0px;">
+                          <textarea id="input_remarks" rows="5" cols="30"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button id="btn_close_mission" type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+                    <button id="btn_send_mission"  type="button" class="btn btn-primary">送出</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div id="DisasterDetailModal" class="modal fade" tabindex="-1" role="dialog">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">任務資訊</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="container-fluid">
+                      <div class="row" style="margin-bottom:15px;">
+                        <div class="col-md-3">依據單位</div>
+                        <div class="col-md-6 select">
+                          <select name="slct" id="unit_detail" disabled>
+                          <option selected disabled>選擇依據單位</option>
+                          <option value="第一河川局">第一河川局</option>
+                          <option value="第二河川局">第二河川局</option>
+                          <option value="第三河川局">第三河川局</option>
+                          <option value="第四河川局">第四河川局</option>
+                          <option value="第五河川局">第五河川局</option>
+                          <option value="第六河川局">第六河川局</option>
+                          <option value="第七河川局">第七河川局</option>
+                          <option value="第八河川局">第八河川局</option>
+                          <option value="第九河川局">第九河川局</option>
+                          <option value="第十河川局">第十河川局</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="row" style="margin-bottom:15px;">
+                        <div class="col-md-3">通報單編號</div>
+                        <div class="col-md-6" style="padding-right: 0px; padding-left: 0px;">
+                          <input class="input100" id="input_no_detail" type="text" name="input" style="width: 100%;" disabled>
+                        </div>
+                      </div>
+                      <div class="row" style="margin-bottom:15px;">
+                        <div class="col-md-3">派遣單位</div>
+                        <div class="col-md-6 select">
+                          <select name="slct" id="unit_dispatch_detail" disabled>
+                          <option selected disabled>選擇派遣單位</option>
+                          <option value="第一河川局">第一河川局</option>
+                          <option value="第二河川局">第二河川局</option>
+                          <option value="第三河川局">第三河川局</option>
+                          <option value="第四河川局">第四河川局</option>
+                          <option value="第五河川局">第五河川局</option>
+                          <option value="第六河川局">第六河川局</option>
+                          <option value="第七河川局">第七河川局</option>
+                          <option value="第八河川局">第八河川局</option>
+                          <option value="第九河川局">第九河川局</option>
+                          <option value="第十河川局">第十河川局</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="row" style="margin-bottom:15px;">
+                        <div class="col-md-3">任務</div>
+                        <div class="col-md-6 select">
+                          <select name="slct" id="mission_select_detail" disabled>
+                          <option selected disabled>選擇指派任務</option>
+                          <option value="上車待命">上車待命</option>
+                          <option value="進行預佈">進行預佈</option>
+                          <option value="立即支援">立即支援</option>
+                          <option value="任務解除">任務解除</option>
+                          <option value="解除上車待命">解除上車待命</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="row" style="margin-bottom:15px;">
+                        <div class="col-md-3">抽水車需求</div>
+                        <div class="col-md-6 select">
+                          <select name="slct" id="num_select_detail" disabled>
+                          <option selected disabled>選擇輛數</option>
+                          <option value="1">1輛</option>
+                          <option value="2">2輛</option>
+                          <option value="3">3輛</option>
+                          <option value="4">4輛</option>
+                          <option value="5">5輛</option>
+                          <option value="6">6輛</option>
+                          <option value="7">7輛</option>
+                          <option value="8">8輛</option>
+                          <option value="9">9輛</option>
+                          <option value="10">10輛</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="row" style="margin-bottom:15px;">
+                        <div class="col-md-3">支援地點</div>
+                        <div class="col-md-6" style="padding-right: 0px; padding-left: 0px;">
+                          <input class="input100" id="input_location_detail" type="text" name="input" style="width: 100%;" disabled>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-md-3">備註</div>
+                        <div class="col-md-6" style="padding-right: 0px; padding-left: 0px;" >
+                          <textarea id="input_remarks_detail" rows="5" cols="30" disabled></textarea>
+                        </div>
+                      </div>
+                      <div class="row" style="margin-bottom:15px;">
+                        <div class="col-md-3">是否已讀</div>
+                        <div class="col-md-6" style="padding-right: 0px; padding-left: 0px;">
+                          <input class="input100" id="input_read_status_detail" type="text" name="input" style="width: 100%;" disabled>
+                        </div>
+                      </div>
+                      <div class="row" style="margin-bottom:15px;">
+                        <div class="col-md-3">派遣抽水車</div>
+                        <div class="col-md-6" style="padding-right: 0px; padding-left: 0px;">
+                          <input class="input100" id="input_dispatch_car_detail" type="text" name="input" style="width: 100%;" disabled>
+                        </div>
+                      </div>
+                      <div class="row" style="margin-bottom:15px;">
+                        <div class="col-md-3">現場狀況</div>
+                        <div class="col-md-6" style="padding-right: 0px; padding-left: 0px;">
+                          <input class="input100" id="input_site_condition_detail" type="text" name="input" style="width: 100%;" disabled>
+                        </div>
+                      </div>
+                      <div class="row" style="margin-bottom:15px;">
+                        <div class="col-md-3">淹水深度</div>
+                        <div class="col-md-6" style="padding-right: 0px; padding-left: 0px;">
+                          <input class="input100" id="input_flood_deep_detail" type="text" name="input" style="width: 100%;" disabled>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-md-3">現場照片</div>
+                        <div class="col-md-12" style="width: 100%;">
+                          <img id="image_preview_detail" style="display: table; margin: 0 auto; width: 80%; height: auto; max-height: 500px;">
+                      </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button id="btn_close_mission" type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style ="position: absolute; bottom: 5px;right:9rem;">
+              <div class="popup">
+                <span class="popuptext show" id="myPopup">
+                  <code>水位站</code><br>
+                  <!-- <img src="/icons/markers/water_level/water_level_0.png">：</img><br> -->
+                 <img src="/icons/markers/water_level/water_level_3.png">：</img><code style="font-size:18px" id="water_level3_total"></code><br>
+                 <img src="/icons/markers/water_level/water_level_2.png">：</img><code style="font-size:18px" id="water_level2_total"></code><br>
+                 <img src="/icons/markers/water_level/water_level_1.png">：</img><code style="font-size:18px" id="water_level1_total"></code><br>
+                  <code>雨量站</code><br>
+                  <!-- <img src="/icons/markers/rainfall/rainfall_level_0.png">：</img><br> -->  
+                  <img src="/icons/markers/rainfall/rainfall_level_2.png">：</img><code style="font-size:18px" id="rainfall_level2_total"></code><br>
+                  <img src="/icons/markers/rainfall/rainfall_level_1.png">：</img><code style="font-size:18px" id="rainfall_level1_total"></code><br>
+                  <code>淹水災情(通報)</code><br>
+                  <img src="/icons/markers/flood_sensor/report_notReceded.png"></img><img src="/icons/markers/flood_sensor/report_Receded.png">：</img><code style="font-size:18px" id="flooding_total"></code><br>
+                  <code>淹水災情(淹水感測器)</code><br>
+                  <img src="/icons/markers/flood_sensor/sensor_notReceded.png"></img><img src="/icons/markers/flood_sensor/sensor_Receded.png">：</img><code style="font-size:18px" id="sensor_total"></code><br>
+                  <code style="font-size:16px">更新時間:</code><code style="font-size:16px" id="update_time"></code> <!--2020/08/12 08:52:30-->
+                </span>
+              </div>
+              
+          <!-- <div class="row rowfill">
+            <div class="col-lg-4" style="padding:0px">
+              <div class="short-div" style="background-color:rgb(194, 192, 192)">
+                正在開發中...
+              </div>
+              <div class="short-div">
+                <div>
+                  <canvas id="chart" ></canvas>
+                </div>
+              </div> 
+            </div> -->
+            <!-- <div class="col-lg-4" style="padding:0px">
+              <div id="map" class="map"></div>
+              <div id="popup" class="ol-popup">
+                <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+                <div id="popup-content"></div>
+              </div>
+            </div> -->
+            <!-- <div class="col-lg-4" style="padding:0px">
+              <div class="short-div">
+                正在開發中...
+              </div>
+              <div class="short-div" style="background-color:rgb(194, 192, 192)" >
+                正在開發中...
+              </div> -->
+            <!-- </div> -->
+           
+        </div>
+ 
+          <!-- <br>
+          <span style="color:white" >總計資訊</span> -->
+        </div>
+      </div>
+        <!-- /.container-fluid -->
+
+      </div>
+      <!-- End of Main Content -->
+
+      <!-- Footer -->
+      <!-- <footer class="sticky-footer bg-white">
+        <div class="container my-auto">
+          <div class="copyright text-center my-auto">
+            <span>Copyright © 國家中山科學研究院</span>
+          </div>
+        </div>
+      </footer> -->
+      <!-- End of Footer -->
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+ </body>  
+ </html>  

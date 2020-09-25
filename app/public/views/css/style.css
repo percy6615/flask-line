@@ -1,0 +1,142 @@
+.navbar-custom {
+    background-color: #555;
+}
+/* change the brand and text color */
+.navbar-custom .navbar-brand,
+.navbar-custom .navbar-text {
+    color: #ffffff;
+}
+
+/* change the link color */
+.navbar-custom .navbar-nav .nav-link {
+    color: #ffffff;
+}
+
+/* change the color of active or hovered links */
+.navbar-custom .nav-item.active .nav-link,
+.navbar-custom .nav-item:hover .nav-link {
+    color: #ffffff;
+}
+
+/* for dropdown only - change the color of droodown */
+.navbar-custom .dropdown-menu {
+    background-color: #ffffff;
+}
+
+.navbar-custom .dropdown-item {
+    color: #191919;
+}
+
+.navbar-custom .dropdown-item:hover,
+.navbar-custom .dropdown-item:focus {
+    background-color: rgb(133, 129, 129);
+}
+body {
+  line-height: 1; }
+ol,
+ul {
+list-style: none;
+}
+ul.nav>li {
+position: relative;
+}
+ul.nav>li a:hover {
+text-decoration: none;
+background: #efefef; /* /滑入選單底色/ */
+}
+ul.nav>li ul>li{
+border-left: solid 1px #ccc;/* /選單側邊線顏色/ */
+}
+ul.nav>li>ul>li a{
+color: #333;/* /選單連結顏色/ */
+display: block;
+padding-top: 10px;
+padding-bottom: 10px;
+text-decoration:none;
+}
+ul.nav>li ul>li {border-bottom: solid 1px #ccc;} /* /選單隔線顏色/ */
+ul.nav>li ul>li:last-child{border-bottom:0;}
+ul.nav>li>ul li>ul.sub-menu {border-top: solid 1px #ccc;}/* /子選單隔線顏色/ */
+ul.nav>li>ul.sub-menu li>ul.sub-menu{display:none;}
+ul.nav>li ul {padding-left:20px;}/* /階層式向後退的像素/ */
+ul.nav>li ul>li>a:before{
+font-family: ‘FontAwesome’;
+content: ‘\f105’;
+padding-right:7px;
+padding-left:7px;
+font-size:10px;
+}
+/* /桌機/ */
+@media(min-width:768px) {
+ul>li>a>b.arrow:after {
+font-family: ‘FontAwesome’;
+content: ‘\f078’;
+font-size: 12px;
+position: absolute;
+right: 0;
+}
+ul>li>ul>li>a>b.arrow:after {
+font-family: ‘FontAwesome’;
+content: ‘\f078’;
+font-size: 15px;
+position: absolute;
+top:0;
+right: 0;
+padding:10px 15px;
+}
+ul>li>ul>li>a>b.on:after {
+font-family: ‘FontAwesome’;
+content: ‘\f00d’;
+}
+ul.nav>li:hover>a+ul {
+visibility: visible;
+opacity: 1;
+}
+ul.nav>li>ul.sub-menu {
+position: absolute;
+top: 50px;
+left: 0;
+z-index: 9999;
+background: #fff;
+width: 20vw;
+text-align: left;
+border-left: solid 1px #ededed;
+border-bottom: solid 1px #ededed;
+border-right: solid 1px #ededed;
+box-shadow: 0px 5px 2px rgba(0, 0, 0, 0.3);
+opacity: 0;
+visibility: hidden;
+-webkit-transition: all .5s;
+transition: all .5s;
+}
+}
+/* /手機/ */
+@media(max-width:768px) {
+b.arrow:after {
+font-family: ‘FontAwesome’;
+content: ‘\f078’;
+position: absolute;
+top: 3px;
+right: 0;
+padding: 10px 20px 10px 40px;
+}
+a.dropdown+ul {
+display: none;
+}
+b.on:after {
+font-family: ‘FontAwesome’;
+content: ‘\f00d’;
+}
+ul.nav>li>a {border-bottom: solid 2px #ccc;}/* /選單隔線顏色/ */
+ul.nav>li:last-child>a {border-bottom: 0;}
+ul.nav>li>ul.sub-menu {
+border-bottom: solid 2px #ccc;/* /子選單隔線顏色/ */
+}
+}
+.login-label
+{
+    color: #fff;
+    padding-top: 10px;
+    margin-left: 78%
+}
+

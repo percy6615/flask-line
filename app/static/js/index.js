@@ -1,7 +1,7 @@
 window.onload = function() {
     const useNodeJS = false;   // if you are not using a node server, set this value to false
     const defaultLiffId = "1654967360-Xxwk42z4";   // change the default LIFF value if you are not using a node server
-
+    console.log(123)
     // DO NOT CHANGE THIS
     let myLiffId = "1654967360-Xxwk42z4";
 
@@ -190,7 +190,7 @@ function registerButtonHandlers() {
         if (liff.isApiAvailable('shareTargetPicker')) {
             liff.shareTargetPicker([{
                 'type': 'text',
-                'text': "{{param1}}"
+                'text': ""
             }]).then(
                 document.getElementById('shareTargetPickerMessage').textContent = "Share target picker was launched."
             ).catch(function (res) {
