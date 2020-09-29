@@ -38,7 +38,16 @@ class LiffControllerToolsBot(MethodView):
 
 class LiffControllerUserReport(MethodView):
     def get(self):
-        return render_template('reportpage.html')
+
+        if request.args.get('liff.state') is not None:
+            querystr = request.args['liff.state']
+            missionId = querystr.split('mission_id=')
+            if len(missionId)>1:
+                key = missionId[len(missionId)-1]
+            return render_template('reportpage.html', mission_id = key)
+        else:
+            key = request.args['mission_id']
+            return render_template('reportpage.html', mission_id = key)
 
     def post(self):
         return 200
@@ -83,7 +92,7 @@ class LiffGetQueryPostSaveMissionController(MethodView):
     def post(self):
         post_data = request.values
         val = MySQLs().run(
-            "update pump_mission_list set site_condition  = '" + post_data['site_condition'] + "', flood_deep = '" +
+            "update wraproject.pump_mission_list set site_condition  = '" + post_data['site_condition'] + "', flood_deep = '" +
             post_data['flood_deep']
             + "', site_pic_url = '" + post_data['site_pic_url'] + "', dispatch_car_list = '" + post_data[
                 'pump_car_list'] + "' where mission_id = '" + post_data['mission_id'] + "'")
@@ -104,4 +113,4 @@ class LiffUploadImageController(MethodView):
         if filedata is not None:
             ext = filedata.filename.split('.')[1]
             filedata.save(os.path.join(static_tmp_path, secure_filename(missionID + "." + ext)))
-        return "200"
+        return {"success":"200"}

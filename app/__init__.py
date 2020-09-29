@@ -32,8 +32,10 @@ class FlaskApp:
         Mail(self.app)
         Moment(self.app)
         PageDown(self.app)
+
         self.app.config['JWT_SECRET_KEY'] = 'this-should-be-change'
         self.cache = Cache(self.app, config={'CACHE_TYPE': 'filesystem', 'CACHE_DIR': basedir})
+
 
     def getApp(self):
         return self.app

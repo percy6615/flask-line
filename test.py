@@ -120,3 +120,7 @@ print(str(std))
 #
 # print(type(datetime_object))
 # print(datetime_object)  # printed in default format
+
+
+a = '123444'
+print(len(a.split('24')))

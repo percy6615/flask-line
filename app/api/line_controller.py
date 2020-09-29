@@ -4,7 +4,7 @@ import logging
 import os
 import sys
 import tempfile
-
+import urllib
 import requests
 from flask import request, send_from_directory, Response
 from flask_restful import Resource, abort
@@ -147,7 +147,7 @@ class LineController(MethodView):
                     #     URIAction(label='確定', uri=wrauri + str(event.source.user_id)),
                     #     MessageAction(label='取消', text='No!')
                     # ])
-                    template_message = buttonRegisterTemplate(event.source.user_id)
+                    # template_message = buttonRegisterTemplate(event.source.user_id)
                     data = {'mission_id': '497d1823-c3b5-4991-a272-e58fb848a329', 'base_unit': '第四河川局',
                             'reportform_id': 'RP12365854', 'dispatch_unit': '第八河川局', 'mission_status': '進行預佈',
                             'pumpcar_num': '8',

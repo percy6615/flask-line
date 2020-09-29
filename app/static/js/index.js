@@ -65,7 +65,8 @@ function initializeApp() {
     displayLiffData();
     displayIsInClientInfo();
     registerButtonHandlers();
-
+    const context = liff.getContext();
+    console.log(context);
     // check if the user is logged in/out, and disable inappropriate button
     if (liff.isLoggedIn()) {
         document.getElementById('liffLoginButton').disabled = true;
