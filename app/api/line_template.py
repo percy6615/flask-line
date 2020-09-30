@@ -409,7 +409,8 @@ def flexReportMessageTemplate(jsonObj):
                     "action": {
                         "type": "uri",
                         "label": "回報資訊",
-                        "uri": wra_baseuri + "/reportpage?mission_id=" + 'db1a102d-5be6-4cfa-8f0a-8788146bb584'
+                        #"uri": wra_baseuri + "/reportpage?mission_id=" + 'db1a102d-5be6-4cfa-8f0a-8788146bb584'
+                        "uri":"https://liff.line.me/1654967293-75RpAzOp?mission_id=" + 'db1a102d-5be6-4cfa-8f0a-8788146bb584'
                     },
                     "color": "#64AAFFFF",
                     "height": "sm",

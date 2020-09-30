@@ -1,13 +1,11 @@
 import errno
-import json
 import logging
 import os
 import sys
 import tempfile
-import urllib
 import requests
 from flask import request, send_from_directory, Response
-from flask_restful import Resource, abort
+from flask_restful import abort
 from linebot import (
     LineBotApi, WebhookHandler
 )
@@ -47,9 +45,11 @@ line_bot_api = LineBotApi(channel_access_token)
 handler = WebhookHandler(channel_secret)
 from flask.views import MethodView
 
+line_dropfile = 'line_dropfile'
 # static_tmp_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'static', 'tmp')
-static_tmp_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'tmp')
+static_tmp_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', line_dropfile)
 static_disasterpics_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'images', 'disasterpics')
+
 
 # function for create tmp dir for download content
 def make_static_tmp_dir():
@@ -127,7 +127,6 @@ class LineController(MethodView):
     def get(self):
         pass
         # line_bot_api.push_message('C13484d958428ce83eba10808c44bbe34', TextSendMessage(text='Hello World!'))
-
         # url = "https://notify-api.line.me/api/notify"
         # data = {'message': 'We did it!'}
         # headers = {'Authorization': 'Bearer ' + '1rU2omMOA2884DVB6Bx119ESfNoWyrO0bIchGjDrwtK'}
@@ -191,7 +190,7 @@ class LineController(MethodView):
                             'location': '桃園市中壢區中央西路888號', 'remarks': '氣象局預報大雨即將來襲，請盡速前往進行欲佈作業。', 'sender': 'ad',
                             'create_time': '2020/9/21 14:34:22'}
                     line_bot_api.reply_message(event.reply_token, flexReportMessageTemplate(data))
-                pass
+
                 # profile = line_bot_api.get_group_summary(event.source.group_id)
                 # grpid = line_bot_api.get_group_member_profile(user_id=event.source.user_id, group_id=event.source.group_id)
                 # count = line_bot_api.get_group_members_count(group_id=event.source.group_id)
@@ -262,7 +261,10 @@ class LineController(MethodView):
             dist_path = temple_path + '.' + ext
             dist_name = os.path.basename(dist_path)
             os.rename(temple_path, dist_path)
-            url = request.host_url + os.path.join('static', 'tmp', dist_name)
+            host_url = os.getenv('webhook_baseuri')
+            if host_url is None:
+                host_url = request.host_url
+            url = host_url + "/" + os.path.join('static', line_dropfile, dist_name)
             url = url.replace('\\', '/')
             line_bot_api.reply_message(
                 event.reply_token, [
@@ -286,7 +288,10 @@ class LineController(MethodView):
             dist_path = temple_path + '-' + event.message.file_name
             dist_name = os.path.basename(dist_path)
             os.rename(temple_path, dist_path)
-            url = request.host_url + os.path.join('static', 'tmp', dist_name)
+            host_url = os.getenv('webhook_baseuri')
+            if host_url is None:
+                host_url = request.host_url
+            url = host_url + "/" + os.path.join('static', line_dropfile, dist_name)
             url = url.replace('\\', '/')
             line_bot_api.reply_message(
                 event.reply_token, [

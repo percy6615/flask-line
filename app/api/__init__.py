@@ -6,7 +6,7 @@ app = routerApp.getApp()
 routerCache = routerApp.getCache()
 from .line_controller import LineController, LineRepostMessageToLineBotController, LineRegisterController, \
     LineWebhooksStaticPathController
-from .liff_controller import LiffController, LiffControllerIndex, LiffControllerUserReport, LiffControllerToolsBot, \
+from .liff_controller import  LiffControllerUserReport, LiffControllerToolsBot, \
     LiffPublicPathController, LiffGetQueryPostSaveMissionController, LiffUploadImageController, LiffGetIDFromLine
 
 app.add_url_rule('/webhooks/line',
@@ -17,10 +17,7 @@ app.add_url_rule('/webhooks/registerdata',
                  view_func=LineRegisterController.as_view('LineRegisterController'))
 app.add_url_rule('/webhooks/repostmessage',
                  view_func=LineRepostMessageToLineBotController.as_view('LineRepostMessageToLineBotController'))
-app.add_url_rule('/webhooks/liff',
-                 view_func=LiffController.as_view('LiffController'))
-app.add_url_rule('/webhooks/liffindex',
-                 view_func=LiffControllerIndex.as_view('LiffControllerIndex'))
+
 app.add_url_rule('/webhooks/lifftoolsbot',
                  view_func=LiffControllerToolsBot.as_view('LiffControllerToolsBot'))
 app.add_url_rule('/webhooks/reportpage',

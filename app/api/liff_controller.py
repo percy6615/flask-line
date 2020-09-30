@@ -10,23 +10,6 @@ from app.database.mysql_engine import MySQLs
 
 liffID = os.getenv('LIFF_BIND_ID')
 
-
-class LiffController(MethodView):
-    def get(self):
-        return render_template('index.html', param1=str(random.random()))
-
-    def post(self):
-        return 200
-
-
-class LiffControllerIndex(MethodView):
-    def get(self):
-        return render_template('liff.html')
-
-    def post(self):
-        return 200
-
-
 class LiffControllerToolsBot(MethodView):
     def get(self):
         return render_template('toolsbot.html', param1=str(random.random()))
