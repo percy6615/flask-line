@@ -1,6 +1,6 @@
 import random
 
-from flask import Flask
+from flask import Flask, send_from_directory
 from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
@@ -17,9 +17,9 @@ from .tools.sync_tool import singleton
 basedirs = os.path.abspath(os.path.dirname(__file__))
 basedir = basedirs + '/cache'
 globalInMem = GlobalInMem().handleUserList()
-register_man = globalInMem.getUserList()
-register_group = globalInMem.getGroupList()
-
+globalRegisterUser = globalInMem.getUserList()
+globalRegisterGroup = globalInMem.getGroupList()
+globalMissionData = dict()
 
 @singleton
 class FlaskApp:
@@ -36,7 +36,6 @@ class FlaskApp:
         self.app.config['JWT_SECRET_KEY'] = 'this-should-be-change'
         self.cache = Cache(self.app, config={'CACHE_TYPE': 'filesystem', 'CACHE_DIR': basedir})
 
-
     def getApp(self):
         return self.app
 
@@ -45,5 +44,13 @@ class FlaskApp:
 
 
 routerApp = FlaskApp()
+app = routerApp.getApp()
+
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory('static', 'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
+
 from . import api
 from . import auth

@@ -1,5 +1,8 @@
+import logging
 from argparse import ArgumentParser
 from dotenv import load_dotenv
+
+
 
 from app import routerApp
 

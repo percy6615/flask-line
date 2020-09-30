@@ -1,7 +1,7 @@
 import random
 from abc import ABCMeta, abstractmethod
 
-from app import register_man
+from app import globalRegisterUser
 from app.database.mysql_engine import MySQLs, create_ng_mysql
 import pandas as pd
 import time
@@ -51,7 +51,7 @@ class MessageInterface(metaclass=ABCMeta):
             isCheckExist = self.isCheckEventExist()
             if isCheckExist:
                 senderid = jsonData[0]['senderid']
-                register_man[senderid] = jsonData[0]
+                globalRegisterUser[senderid] = jsonData[0]
             count = count - 1
 
 

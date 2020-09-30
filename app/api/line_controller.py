@@ -33,7 +33,7 @@ from linebot.models import (
 from werkzeug.utils import redirect
 
 from .line_template import buttonRegisterTemplate, flexReportMessageTemlate, flexReportMessageTemplate
-from .. import register_man, FlaskApp, GlobalInMem, register_group
+from .. import globalRegisterUser, FlaskApp, GlobalInMem, globalRegisterGroup
 
 from ..model.event_handle import FollowEventHandle, JoinEventHandle
 
@@ -372,8 +372,8 @@ class LineController(MethodView):
         # app.logger.info("Got memberLeft event")
 
     def isUserRegister(self, user_id):
-        if user_id in register_man:
-            if register_man[user_id]['webflag'] == 1:
+        if user_id in globalRegisterUser:
+            if globalRegisterUser[user_id]['webflag'] == 1:
                 return True
         return False
 
@@ -400,11 +400,11 @@ class LineRegisterController(MethodView):
         # body = request.get_data(as_text=True)
         json_body = request.get_json()
         if json_body is not None and "senderid" in json_body:
-            if register_man[json_body['senderid']]['webflag'] == 1:
+            if globalRegisterUser[json_body['senderid']]['webflag'] == 1:
                 print('註冊過了')
             else:
-                register_man[json_body['senderid']]['webflag'] = 1
-                register_man[json_body['senderid']]['groupname'] = json_body['groupname']
+                globalRegisterUser[json_body['senderid']]['webflag'] = 1
+                globalRegisterUser[json_body['senderid']]['groupname'] = json_body['groupname']
                 print(GlobalInMem.updateUser(json_body['senderid'], json_body['groupname']))
             return {"success": 200}
         else:
@@ -424,8 +424,8 @@ class LineRepostMessageToLineBotController(MethodView):
         json_body = request.get_json()
         dispatch_unit = json_body['dispatch_unit']
         groupid = None
-        for key in register_group.keys():
-            if register_group[key]['groupname'] == dispatch_unit:
+        for key in globalRegisterGroup.keys():
+            if globalRegisterGroup[key]['groupname'] == dispatch_unit:
                 groupid = key
                 break
         if json_body is not None and groupid is not None:

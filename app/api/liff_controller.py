@@ -2,14 +2,13 @@
 import json
 import os
 import random
-from datetime import datetime
 from flask import render_template, request, send_from_directory, make_response, jsonify
-
 from flask.views import MethodView
-from tensorboard.backend import json_util
 from werkzeug.utils import secure_filename
 
 from app.database.mysql_engine import MySQLs
+
+liffID = os.getenv('LIFF_BIND_ID')
 
 
 class LiffController(MethodView):
@@ -42,22 +41,18 @@ class LiffControllerUserReport(MethodView):
         if request.args.get('liff.state') is not None:
             querystr = request.args['liff.state']
             missionId = querystr.split('mission_id=')
-            if len(missionId)>1:
-                key = missionId[len(missionId)-1]
-            return render_template('reportpage.html', mission_id = key)
+            if len(missionId) > 1:
+                key = missionId[len(missionId) - 1]
+            return render_template('reportpage.html', mission_id=key)
         else:
             key = request.args['mission_id']
-            return render_template('reportpage.html', mission_id = key)
+            return render_template('reportpage.html', mission_id=key)
 
     def post(self):
         return 200
 
 
 class LiffPublicPathController(MethodView):
-    # def __init__(self, *args, **kwargs):
-    # print()
-    # super.__init__(*args, **kwargs)
-
     def get(self, path):
         # return {"success":path}
         return self.send_static_content(path)
@@ -92,14 +87,15 @@ class LiffGetQueryPostSaveMissionController(MethodView):
     def post(self):
         post_data = request.values
         val = MySQLs().run(
-            "update wraproject.pump_mission_list set site_condition  = '" + post_data['site_condition'] + "', flood_deep = '" +
+            "update wraproject.pump_mission_list set site_condition  = '" + post_data[
+                'site_condition'] + "', flood_deep = '" +
             post_data['flood_deep']
             + "', site_pic_url = '" + post_data['site_pic_url'] + "', dispatch_car_list = '" + post_data[
                 'pump_car_list'] + "' where mission_id = '" + post_data['mission_id'] + "'")
-        if val is None:
-            return "傳送失敗"
+        if val is not None:
+            return {'status': "success"}
         else:
-            return "傳送完成"
+            return {'status': "fail"}
 
 
 class LiffUploadImageController(MethodView):
@@ -113,4 +109,15 @@ class LiffUploadImageController(MethodView):
         if filedata is not None:
             ext = filedata.filename.split('.')[1]
             filedata.save(os.path.join(static_tmp_path, secure_filename(missionID + "." + ext)))
-        return {"success":"200"}
+        return {"success": "200"}
+
+
+class LiffGetIDFromLine(MethodView):
+    def get(self):
+        liffKey = {"id": liffID}
+        response = make_response(liffKey)
+        response.status_code = 200
+        return response
+
+    def post(self):
+        pass
