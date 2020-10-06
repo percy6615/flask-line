@@ -315,8 +315,6 @@
 
         <script>
             window.onload = function() {
-
-
                 var myLiffId = "";
                 fetch('/webhooks/getliffid')
                     .then(function(reqResponse) {
@@ -362,11 +360,16 @@
 
             function initializeApp(myLiffId) {
                 const context = liff.getContext();
-                console.log(context);
+                //console.log(context);
                 //document.getElementById("liffcontext").textContent = liff.getContext().userId;
                 $("#signUp").on('click', function(e) {
                     if (checkVaildate()) {
+                        timeclosemodal();
                         var pump_car_list = '';
+                        var contextUserId = context.userId
+                        if(contextUserId==undefined){
+                            contextUserId = '';
+                        }
                         let checkbox = document.getElementsByName('checkbox');
                         checkbox.forEach((element) => {
                             if (element.checked == true) {
@@ -385,8 +388,11 @@
                         var formData = new FormData();
                         document.getElementById("loader").style.display = "block";
                         var file = document.getElementById("btn_upload").files[0];
+                        var extension = file.name.split('.').pop();
                         formData.append("Filedata", file);
-
+                        if(extension==undefined){
+                            extension = '';
+                        }
                         $.ajax({
                             url: "/webhooks/uploadimage?mission_id=" + missionID,
                             data: formData,
@@ -402,8 +408,8 @@
                                     liff.closeWindow();
 
                                 } else {
-                                    window.location.href = "about:blank";
-                                    window.close();
+                                    //window.location.href = "about:blank";
+                                    //window.close();
                                 }
 
                             },
@@ -420,11 +426,13 @@
                                 site_condition: site_condition,
                                 flood_deep: flood_deep,
                                 site_pic_url: "",
-                                pump_car_list: pump_car_list
+                                pump_car_list: pump_car_list,
+                                line_id:contextUserId,
+                                ext:extension,
                             },
                             function(data, status) {
                                 $('#myModal').modal('show');
-                                timeclosemodal();
+
                                 if (data == '派遣任務回報成功!') {
                                     //alert(data);
                                     //window.location.href = './login';
@@ -479,7 +487,7 @@
                 }
 
                 function timeclosemodal() {
-                    window.setTimeout(hide_modal, 2000);
+                    window.setTimeout(hide_modal, 3000);
                 }
             }
         </script>

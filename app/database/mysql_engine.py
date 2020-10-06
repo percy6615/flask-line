@@ -5,6 +5,7 @@ from app.tools import log_tool
 from app.tools.sync_tool import synchronized, singleton
 from dotenv import load_dotenv
 
+
 logger = log_tool.logger
 load_dotenv()
 
@@ -86,11 +87,14 @@ class MySQLs:
     @staticmethod
     def get_index_dict(cur):
         index_dict = dict()
+        index_dict_type = dict()
         index = 0
         for desc in cur.description:
+            # pymysql.constants.FIELD_TYPE.get_info(desc[1])
             index_dict[desc[0]] = index
+            index_dict_type[desc[0]] = desc[1]
             index = index + 1
-        return index_dict
+        return index_dict, index_dict_type
 
 
     def get_dict_data_sql(self, sql):
@@ -102,12 +106,18 @@ class MySQLs:
         self.cur.execute(sql)
         data = self.cur.fetchall()
         # self.conn.commit()
-        index_dict = self.get_index_dict(self.cur)
+        index_dict, index_dict_type = self.get_index_dict(self.cur)
         res = []
         for datai in data:
             resi = dict()
             for indexi in index_dict:
-                resi[indexi] = datai[index_dict[indexi]]
+                    if datai[index_dict[indexi]] is None:
+                        if index_dict_type[indexi] == pymysql.constants.FIELD_TYPE.VAR_STRING:
+                            resi[indexi] = ''
+                        elif index_dict_type[indexi] == pymysql.constants.FIELD_TYPE.DATETIME:
+                            resi[indexi] = None
+                    else:
+                        resi[indexi] = datai[index_dict[indexi]]
             res.append(resi)
         self._logout()
         return res
