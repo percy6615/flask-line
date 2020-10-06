@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html >
+<title>指派任務-水利署防救災決策輔助系統</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="./public/javascript/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="./public/views/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="./public/views/font-awesome/css/icon-font.min.css">
+    <link rel="stylesheet" type="text/css" href="./public/views/vendor/animate/animate.css">
+    <link rel="stylesheet" type="text/css" href="./public/views/vendor/css-hamburgers/hamburgers.min.css">
+    <link rel="stylesheet" type="text/css" href="./public/views/vendor/animsition/css/animsition.min.css">
+    <link rel="stylesheet" type="text/css" href="./public/views/vendor/select2/select2.min.css">
+    <link rel="stylesheet" type="text/css" href="./public/views/vendor/daterangepicker/daterangepicker.css">
+    <link rel="stylesheet" type="text/css" href="./public/views/css/regist/util.css">
+    <link rel="stylesheet" type="text/css" href="./public/views/css/regist/main.css">
+    <!--<link rel="stylesheet" type="text/css" href="./static/css/style.css">-->
+    <script type="text/javascript" async="" src="https://www.google-analytics.com/analytics.js"></script>
+    <script type="text/javascript" async="" src="https://www.google-analytics.com/analytics.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js">
+        charset = "utf-8"
+    </script>
+    <script src="./public/views/vendor/animsition/js/animsition.min.js" type="text/javascript"></script>
+    <script src="./public/views/vendor/bootstrap/js/popper.js" type="text/javascript"></script>
+    <script src="./public/javascript/bootstrap/js/bootstrap.min.js">
+        charset = "utf-8"
+    </script>
+    <script src="./public/views/vendor/select2/select2.min.js" type="text/javascript"></script>
+    <script src="./public/views/vendor/daterangepicker/moment.min.js" type="text/javascript"></script>
+    <script src="./public/views/vendor/daterangepicker/daterangepicker.js" type="text/javascript"></script>
+    <script src="./public/views/vendor/countdowntime/countdowntime.js" type="text/javascript"></script>
+
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-23581568-13" type="text/javascript"></script>
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/versions/2.3.0/sdk.js"></script>
+    <style>
+        img {
+            max-width: 50%;
+            height: auto;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+
+        /* Reset Select */
+
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            -ms-appearance: none;
+            appearance: none;
+            outline: 0;
+            box-shadow: none;
+            border: 0 !important;
+            background: #2c3e50;
+            background-image: none;
+        }
+
+
+        /* Remove IE arrow */
+
+        select::-ms-expand {
+            display: none;
+        }
+
+
+        /* Custom Select */
+
+        .select {
+            position: relative;
+            display: flex;
+            width: 100%;
+            height: 2em;
+            line-height: 2;
+            background: #2c3e50;
+            overflow: hidden;
+            border-radius: .25em;
+        }
+
+        select {
+            flex: 1;
+            padding: 0 .5em;
+            color: #fff;
+            cursor: pointer;
+        }
+
+
+        /* Arrow */
+
+        .select::after {
+            content: '\25BC';
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 0 1em;
+            background: #34495e;
+            cursor: pointer;
+            pointer-events: none;
+            -webkit-transition: .25s all ease;
+            -o-transition: .25s all ease;
+            transition: .25s all ease;
+        }
+
+
+        /* Transition */
+
+        .select:hover::after {
+            color: #f39c12;
+        }
+
+        input {
+            background-color: #e0e0e026;
+        }
+
+        #loader {
+            position: absolute;
+            left: 50%;
+            top: 80%;
+            z-index: 1;
+            margin: -75px 0 0 -75px;
+            border: 16px solid #f3f3f3;
+            border-radius: 50%;
+            border-bottom: 16px solid #3498db;
+            border-radius: 50%;
+            border-top: 16px solid #3498db;
+            width: 180px;
+            height: 180px;
+            -webkit-animation: spin 2s linear infinite;
+            animation: spin 2s linear infinite;
+        }
+
+        @-webkit-keyframes spin {
+            0% {
+                -webkit-transform: rotate(0deg);
+            }
+            100% {
+                -webkit-transform: rotate(360deg);
+            }
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        #myModal {
+
+            top: 80%;
+        }
+    </style>
+
+</head>
+<body>
+<div class="limiter">
+        <div class="container-login100">
+            <div class="wrap-login100 p-l-35 p-r-35 p-t-35 p-b-35" style="width: 500px;">
+
+                <div class="login100-form validate-form">
+                    <span class="login100-form-title p-b-33">任務派遣</span>
+                    <div class="container-fluid">
+                        <div class="row" >
+                            <div class="col-md-4">依據單位</div>
+                                <div class="col-md-6 select" style="margin-bottom:15px;">
+                                  <select name="slct" id="unit_select">
+                                  <option selected disabled>選擇依據單位</option>
+                                  <option value="1">第一河川局</option>
+                                  <option value="2">第二河川局</option>
+                                  <option value="3">第三河川局</option>
+                                  <option value="4">第四河川局</option>
+                                  <option value="5">第五河川局</option>
+                                  <option value="6">第六河川局</option>
+                                  <option value="7">第七河川局</option>
+                                  <option value="8">第八河川局</option>
+                                  <option value="9">第九河川局</option>
+                                  <option value="10">第十河川局</option>
+                                  </select>
+                                </div>
+                        </div>
+                        <div class="row" style="margin-bottom:15px;">
+                            <div class="col-md-4">通報單編號</div>
+                                <div class="col-md-6" style="padding-right: 0px; padding-left: 0px;">
+                                    <input class="input" id="input_no" type="text" name="input" >
+                                </div>
+                        </div>
+                        <div class="row" >
+                            <div class="col-md-4">派遣單位</div>
+                                <div class="col-md-6 select" style="margin-bottom:15px;">
+                                  <select name="slct" id="unit_dispatch">
+                                  <option selected disabled>選擇派遣單位</option>
+                                  <option value="1">第一河川局</option>
+                                  <option value="2">第二河川局</option>
+                                  <option value="3">第三河川局</option>
+                                  <option value="4">第四河川局</option>
+                                  <option value="5">第五河川局</option>
+                                  <option value="6">第六河川局</option>
+                                  <option value="7">第七河川局</option>
+                                  <option value="8">第八河川局</option>
+                                  <option value="9">第九河川局</option>
+                                  <option value="10">第十河川局</option>
+                                  </select>
+                                </div>
+                        </div>
+                        <div class="row" >
+                            <div class="col-md-4">任務狀態</div>
+                                <div class="col-md-6 select" style="margin-bottom:15px;">
+                                  <select name="slct" id="mission_select">
+                                  <option selected disabled>選擇指派任務</option>
+                                  <option value="1">上車待命</option>
+                                  <option value="2">進行預佈</option>
+                                  <option value="3">立即支援</option>
+                                  <option value="4">任務解除</option>
+                                  <option value="5">解除上車待命</option>
+                                  </select>
+                            </div>
+                        </div>
+                        <div class="row" >
+                            <div class="col-md-4">抽水車需求</div>
+                                 <div class="col-md-6 select" style="margin-bottom:15px;">
+                                      <select name="slct" id="num_select">
+                                      <option selected disabled>選擇輛數</option>
+                                      <option value="1">1輛</option>
+                                      <option value="2">2輛</option>
+                                      <option value="3">3輛</option>
+                                      <option value="4">4輛</option>
+                                      <option value="5">5輛</option>
+                                      <option value="6">6輛</option>
+                                      <option value="7">7輛</option>
+                                      <option value="8">8輛</option>
+                                      <option value="9">9輛</option>
+                                      <option value="10">10輛</option>
+                                      </select>
+                                </div>
+                        </div>
+                         <div class="row" style="margin-bottom:15px;">
+                        <div class="col-md-4">支援地點</div>
+                        <div class="col-md-6" style="padding-right: 0px; padding-left: 0px;">
+                          <input class="input" id="input_location" type="text" name="input" >
+                        </div>
+                      </div>
+                      <div class="row" style="margin-bottom:15px;">
+                        <div class="col-md-4">備註</div>
+                        <div class="col-md-6" style="padding-right: 0px; padding-left: 0px;">
+                            <textarea class="input" id="input_remarks" rows="5" cols="30" style="backgroup-color=#123" ></textarea>
+                        </div>
+                      </div>
+
+                        <div class="container-login100-form-btn m-t-20">
+                            <button class="login100-form-btn" id="btn_send_mission">回報</button>
+                        </div>
+
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+</div>
+</body>
+<script>
+ window.onload = function() {
+        var myLiffId = "";
+        fetch('/webhooks/getliffid')
+            .then(function(reqResponse) {
+                return reqResponse.json();
+            })
+            .then(function(jsonResponse) {
+                myLiffId = '1654967293-75RpAzOp';
+                initializeLiffOrDie(myLiffId);
+            })
+            .catch(function(error) {
+                document.getElementById("liffInitErrorMessage").classList.remove('hidden');
+            });
+        //initializeLiffOrDie(defaultLiffId);
+    };
+
+    function initializeLiffOrDie(myLiffId) {
+        if (!myLiffId) {
+            //document.getElementById("liffAppContent").classList.add('hidden');
+            //document.getElementById("liffIdErrorMessage").classList.remove('hidden');
+            console.log('liffIdErrorMessage');
+        } else {
+            initializeLiff(myLiffId);
+        }
+    }
+    /**
+     * Initialize LIFF
+     * @param {string} myLiffId The LIFF ID of the selected element
+     */
+    function initializeLiff(myLiffId) {
+        liff
+            .init({
+                liffId: myLiffId
+            })
+            .then(() => {
+                // start to use LIFF's api
+                initializeApp(myLiffId);
+            })
+            .catch((err) => {
+                //document.getElementById("liffAppContent").classList.add('hidden');
+                //document.getElementById("liffInitErrorMessage").classList.remove('hidden');
+            });
+    }
+
+    function initializeApp(myLiffId) {
+
+        var contextuserid = liff.getContext().userId;
+        if(contextuserid == undefined){
+            contextuserid = '';
+        }
+
+           $("#btn_send_mission").on('click',function(e)
+                  {
+                    var selector=document.getElementById('unit_select');
+                    let base_unit=selector.options[selector.selectedIndex].text;
+                    selector=document.getElementById('unit_dispatch');
+                    let unit_dispatch=selector.options[selector.selectedIndex].text;
+                    selector=document.getElementById('mission_select');
+                    let mission_select=selector.options[selector.selectedIndex].text;
+                    selector=document.getElementById('num_select');
+                    let num_select=selector.options[selector.selectedIndex].text.split('輛')[0];
+                    var today = new Date();
+                    var hours=today.getHours()<10?'0'+today.getHours():today.getHours();
+                    var min=today.getMinutes()<10?'0'+today.getMinutes():today.getMinutes();
+                    var sec=today.getSeconds()<10?'0'+today.getSeconds():today.getSeconds();
+                    var datetime=today.getFullYear()+'/'+(today.getMonth()+1)+'/'+today.getDate()+" "+hours + ":" + min + ":" +sec ;
+                    var data={
+                      "mission_id": uuidGenerator(),
+                      "base_unit": base_unit,
+                      "reportform_id": $("#input_no").val(),
+                      "dispatch_unit": unit_dispatch,
+                      "mission_status":mission_select,
+                      "pumpcar_num": num_select,
+                      "location": $("#input_location").val(),
+                      "remarks": $("#input_remarks").val(),
+                      "sender": contextuserid,
+                      "create_time":datetime
+                    }
+
+                     $.ajax({
+                        type: 'POST',
+                        url: '/webhooks/repostmessage',
+                        data: JSON.stringify(data),
+                        success: function(data) { alert('data: ' + data); },
+                        contentType: "application/json",
+                        dataType: 'json'
+                    });
+                  });
+           function uuidGenerator()
+                {
+                    var d = Date.now();
+                    if (typeof performance !== 'undefined' && typeof performance.now === 'function'){
+                      d += performance.now(); //use high-precision timer if available
+                    }
+                    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                      var r = (d + Math.random() * 16) % 16 | 0;
+                      d = Math.floor(d / 16);
+                        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+                    });
+                }
+
+    }
+
+
+
+</script>
+</html>

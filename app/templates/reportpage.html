@@ -1,4 +1,4 @@
-<html lang="en" data-livestyle-extension="available">
+<html data-livestyle-extension="available">
 
 <head>
     <title>任務回報-水利署防救災決策輔助系統</title>
@@ -160,12 +160,10 @@
     <div class="limiter">
         <div class="container-login100">
             <div class="wrap-login100 p-l-35 p-r-35 p-t-35 p-b-35" style="width: 500px;">
-
                 <div class="container">
-
-                    <!-- Trigger the modal with a button 
-			  <button type="button" onclick="timeclosemodal()" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Open Modal</button>
-			-->
+                    <!-- Trigger the modal with a button
+						<button type="button" onclick="timeclosemodal()" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Open Modal</button>
+					-->
                     <!-- Modal -->
                     <div class="modal fade" id="myModal" role="dialog">
                         <div class="modal-dialog">
@@ -179,10 +177,7 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
-
-
 
                 <div class="login100-form validate-form">
                     <span class="login100-form-title p-b-33">任務回報</span>
@@ -313,185 +308,186 @@
         <!-- <div id="liffcontext"></div> -->
         <div id="loader" style="display: none;"></div>
 
-        <script>
-            window.onload = function() {
-                var myLiffId = "";
-                fetch('/webhooks/getliffid')
-                    .then(function(reqResponse) {
-                        return reqResponse.json();
-                    })
-                    .then(function(jsonResponse) {
-                        myLiffId = jsonResponse.id;
-                        initializeLiffOrDie(myLiffId);
-                    })
-                    .catch(function(error) {
-                        document.getElementById("liffInitErrorMessage").classList.remove('hidden');
-                    });
-                //initializeLiffOrDie(defaultLiffId);
-            };
-
-            function initializeLiffOrDie(myLiffId) {
-                if (!myLiffId) {
-                    //document.getElementById("liffAppContent").classList.add('hidden');
-                    //document.getElementById("liffIdErrorMessage").classList.remove('hidden');
-                    console.log('liffIdErrorMessage');
-                } else {
-                    initializeLiff(myLiffId);
-                }
-            }
-            /**
-             * Initialize LIFF
-             * @param {string} myLiffId The LIFF ID of the selected element
-             */
-            function initializeLiff(myLiffId) {
-                liff
-                    .init({
-                        liffId: myLiffId
-                    })
-                    .then(() => {
-                        // start to use LIFF's api
-                        initializeApp(myLiffId);
-                    })
-                    .catch((err) => {
-                        //document.getElementById("liffAppContent").classList.add('hidden');
-                        document.getElementById("liffInitErrorMessage").classList.remove('hidden');
-                    });
-            }
-
-            function initializeApp(myLiffId) {
-                const context = liff.getContext();
-                //console.log(context);
-                //document.getElementById("liffcontext").textContent = liff.getContext().userId;
-                $("#signUp").on('click', function(e) {
-                    if (checkVaildate()) {
-                        timeclosemodal();
-                        var pump_car_list = '';
-                        var contextUserId = context.userId
-                        if(contextUserId==undefined){
-                            contextUserId = '';
-                        }
-                        let checkbox = document.getElementsByName('checkbox');
-                        checkbox.forEach((element) => {
-                            if (element.checked == true) {
-                                if (pump_car_list != '') {
-                                    pump_car_list += ',' + element.value;
-                                } else {
-                                    pump_car_list += element.value;
-                                }
-                            }
-                        })
-                        var selector = document.getElementById('status_select');
-                        let site_condition = selector.options[selector.selectedIndex].text;
-                        selector = document.getElementById('deep_select');
-                        let flood_deep = selector.options[selector.selectedIndex].text;
-
-                        var formData = new FormData();
-                        document.getElementById("loader").style.display = "block";
-                        var file = document.getElementById("btn_upload").files[0];
-                        var extension = file.name.split('.').pop();
-                        formData.append("Filedata", file);
-                        if(extension==undefined){
-                            extension = '';
-                        }
-                        $.ajax({
-                            url: "/webhooks/uploadimage?mission_id=" + missionID,
-                            data: formData,
-                            type: "Post",
-
-                            cache: false, //上傳文件無需緩存
-                            processData: false, //用於對data參數進行序列化處理 這裏必須false
-                            contentType: false, //必須
-                            success: function(result) {
-                                document.getElementById("loader").style.display = "none";
-                                //alert("上傳完成!");
-                                if (liff.isInClient()) {
-                                    liff.closeWindow();
-
-                                } else {
-                                    //window.location.href = "about:blank";
-                                    //window.close();
-                                }
-
-                            },
-                            error: function(xmlrequest, textStatus, errorThrown) {
-                                alert("上傳失敗!");
-                                //alert("error:" + textStatus + errorThrown + ":" + JSON.stringify(xmlrequest));
-                                console.log("error:" + textStatus + errorThrown + ":" + JSON.stringify(xmlrequest));
-                                //document.getElementById("liffcontext").textContent = JSON.stringify(xmlrequest);
-
-                            }
-                        });
-                        $.post('/webhooks/querymission', {
-                                mission_id: missionID,
-                                site_condition: site_condition,
-                                flood_deep: flood_deep,
-                                site_pic_url: "",
-                                pump_car_list: pump_car_list,
-                                line_id:contextUserId,
-                                ext:extension,
-                            },
-                            function(data, status) {
-                                $('#myModal').modal('show');
-
-                                if (data == '派遣任務回報成功!') {
-                                    //alert(data);
-                                    //window.location.href = './login';
-                                } else {
-                                    //alert(data);
-                                }
-                                //alert("請耐心等待，上傳照片視窗會自動關閉。");
-                            });
-                    } else {
-                        alert('請檢查是否填妥資訊!');
-                    }
-                });
-
-                function checkVaildate() {
-                    var result = true;
-                    let elements = document.getElementsByName('input');
-                    elements.forEach((element) => {
-                        if (element.value == '') {
-                            result = false;
-                        }
-                    })
-                    let selector = document.getElementsByName('slct');
-                    selector.forEach((element) => {
-                        if (element.selectedIndex == 0) {
-                            result = false;
-                        }
-                    })
-                    let checkbox = document.getElementsByName('checkbox');
-                    var checkboxResult = false;
-                    var breakFlag = false;
-                    checkbox.forEach((element) => {
-                        if (breakFlag == false) {
-                            if (element.checked == true) {
-                                checkboxResult = true;
-                                breakFlag = true;
-                            } else {
-                                checkboxResult = false;
-                            }
-                        }
-                    })
-                    if (checkboxResult == false) {
-                        result = false;
-                    }
-                    if (document.getElementById("btn_upload").files.length == 0) {
-                        result = false;
-                    }
-                    return result;
-                }
-
-                function hide_modal() {
-                    $('#myModal').modal('hide');
-                }
-
-                function timeclosemodal() {
-                    window.setTimeout(hide_modal, 3000);
-                }
-            }
-        </script>
     </div>
 </body>
+
+<script>
+    window.onload = function() {
+        var myLiffId = "";
+        fetch('/webhooks/getliffid')
+            .then(function(reqResponse) {
+                return reqResponse.json();
+            })
+            .then(function(jsonResponse) {
+                myLiffId = jsonResponse.id;
+                initializeLiffOrDie(myLiffId);
+            })
+            .catch(function(error) {
+                document.getElementById("liffInitErrorMessage").classList.remove('hidden');
+            });
+        //initializeLiffOrDie(defaultLiffId);
+    };
+
+    function initializeLiffOrDie(myLiffId) {
+        if (!myLiffId) {
+            //document.getElementById("liffAppContent").classList.add('hidden');
+            //document.getElementById("liffIdErrorMessage").classList.remove('hidden');
+            console.log('liffIdErrorMessage');
+        } else {
+            initializeLiff(myLiffId);
+        }
+    }
+    /**
+     * Initialize LIFF
+     * @param {string} myLiffId The LIFF ID of the selected element
+     */
+    function initializeLiff(myLiffId) {
+        liff
+            .init({
+                liffId: myLiffId
+            })
+            .then(() => {
+                // start to use LIFF's api
+                initializeApp(myLiffId);
+            })
+            .catch((err) => {
+                //document.getElementById("liffAppContent").classList.add('hidden');
+                document.getElementById("liffInitErrorMessage").classList.remove('hidden');
+            });
+    }
+
+    function initializeApp(myLiffId) {
+        const context = liff.getContext();
+        //console.log(context);
+        //document.getElementById("liffcontext").textContent = liff.getContext().userId;
+        $("#signUp").on('click', function(e) {
+            if (checkVaildate()) {
+                timeclosemodal();
+                var pump_car_list = '';
+                var contextUserId = context.userId
+                if (contextUserId == undefined) {
+                    contextUserId = '';
+                }
+                let checkbox = document.getElementsByName('checkbox');
+                checkbox.forEach((element) => {
+                    if (element.checked == true) {
+                        if (pump_car_list != '') {
+                            pump_car_list += ',' + element.value;
+                        } else {
+                            pump_car_list += element.value;
+                        }
+                    }
+                })
+                var selector = document.getElementById('status_select');
+                let site_condition = selector.options[selector.selectedIndex].text;
+                selector = document.getElementById('deep_select');
+                let flood_deep = selector.options[selector.selectedIndex].text;
+
+                var formData = new FormData();
+                document.getElementById("loader").style.display = "block";
+                var file = document.getElementById("btn_upload").files[0];
+                var extension = file.name.split('.').pop();
+                formData.append("Filedata", file);
+                if (extension == undefined) {
+                    extension = '';
+                }
+                $.ajax({
+                    url: "/webhooks/uploadimage?mission_id=" + missionID,
+                    data: formData,
+                    type: "Post",
+
+                    cache: false, //上傳文件無需緩存
+                    processData: false, //用於對data參數進行序列化處理 這裏必須false
+                    contentType: false, //必須
+                    success: function(result) {
+                        document.getElementById("loader").style.display = "none";
+                        //alert("上傳完成!");
+                        if (liff.isInClient()) {
+                            liff.closeWindow();
+
+                        } else {
+                            //window.location.href = "about:blank";
+                            //window.close();
+                        }
+
+                    },
+                    error: function(xmlrequest, textStatus, errorThrown) {
+                        alert("上傳失敗!");
+                        //alert("error:" + textStatus + errorThrown + ":" + JSON.stringify(xmlrequest));
+                        console.log("error:" + textStatus + errorThrown + ":" + JSON.stringify(xmlrequest));
+                        //document.getElementById("liffcontext").textContent = JSON.stringify(xmlrequest);
+
+                    }
+                });
+                $.post('/webhooks/querymission', {
+                        mission_id: missionID,
+                        site_condition: site_condition,
+                        flood_deep: flood_deep,
+                        site_pic_url: "",
+                        pump_car_list: pump_car_list,
+                        line_id: contextUserId,
+                        ext: extension,
+                    },
+                    function(data, status) {
+                        $('#myModal').modal('show');
+
+                        if (data == '派遣任務回報成功!') {
+                            //alert(data);
+                            //window.location.href = './login';
+                        } else {
+                            //alert(data);
+                        }
+                        //alert("請耐心等待，上傳照片視窗會自動關閉。");
+                    });
+            } else {
+                alert('請檢查是否填妥資訊!');
+            }
+        });
+
+        function checkVaildate() {
+            var result = true;
+            let elements = document.getElementsByName('input');
+            elements.forEach((element) => {
+                if (element.value == '') {
+                    result = false;
+                }
+            })
+            let selector = document.getElementsByName('slct');
+            selector.forEach((element) => {
+                if (element.selectedIndex == 0) {
+                    result = false;
+                }
+            })
+            let checkbox = document.getElementsByName('checkbox');
+            var checkboxResult = false;
+            var breakFlag = false;
+            checkbox.forEach((element) => {
+                if (breakFlag == false) {
+                    if (element.checked == true) {
+                        checkboxResult = true;
+                        breakFlag = true;
+                    } else {
+                        checkboxResult = false;
+                    }
+                }
+            })
+            if (checkboxResult == false) {
+                result = false;
+            }
+            if (document.getElementById("btn_upload").files.length == 0) {
+                result = false;
+            }
+            return result;
+        }
+
+        function hide_modal() {
+            $('#myModal').modal('hide');
+        }
+
+        function timeclosemodal() {
+            window.setTimeout(hide_modal, 3000);
+        }
+    }
+</script>
 
 </html>

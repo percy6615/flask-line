@@ -49,7 +49,7 @@ def flexReportMessageTemplate(jsonObj):
                         },
                         {
                             "type": "text",
-                            "text": "派遣任務",
+                            "text": "災情回報",
                             "weight": "bold",
                             "size": "lg",
                             "color": "#FB0000FF",

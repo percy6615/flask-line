@@ -18,7 +18,7 @@ class LiffControllerToolsBot(MethodView):
         return render_template('toolsbot.html', param1=str(random.random()))
 
 
-class LiffControllerUserReport(MethodView):
+class LiffReportMissionController(MethodView):
     def get(self):
         if request.args.get('liff.state') is not None:
             querystr = request.args['liff.state']
@@ -29,6 +29,11 @@ class LiffControllerUserReport(MethodView):
         else:
             key = request.args['mission_id']
             return render_template('reportpage.html', mission_id=key)
+
+class LiffAssignMissionController(MethodView):
+    def get(self):
+
+            return render_template('assign_mission.html')
 
 
 def send_static_content(path):
@@ -42,7 +47,6 @@ class LiffPublicPathController(MethodView):
 
 
 class LiffGetQueryPostSaveMissionController(MethodView):
-
     def get(self):
         missionID = request.args.get('mission_id')
         rows = MySQLs().get_dict_data_sql(

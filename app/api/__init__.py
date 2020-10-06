@@ -6,8 +6,9 @@ app = routerApp.getApp()
 routerCache = routerApp.getCache()
 from .line_controller import LineController, LineRepostMessageToLineBotController, LineRegisterController, \
     LineWebhooksStaticPathController
-from .liff_controller import  LiffControllerUserReport, LiffControllerToolsBot, \
-    LiffPublicPathController, LiffGetQueryPostSaveMissionController, LiffUploadImageController, LiffGetIDFromLine
+from .liff_controller import LiffReportMissionController, LiffControllerToolsBot, \
+    LiffPublicPathController, LiffGetQueryPostSaveMissionController, LiffUploadImageController, LiffGetIDFromLine, \
+    LiffAssignMissionController
 
 app.add_url_rule('/webhooks/line',
                  view_func=LineController.as_view('LineController'))
@@ -21,7 +22,9 @@ app.add_url_rule('/webhooks/repostmessage',
 app.add_url_rule('/webhooks/lifftoolsbot',
                  view_func=LiffControllerToolsBot.as_view('LiffControllerToolsBot'))
 app.add_url_rule('/webhooks/reportpage',
-                 view_func=LiffControllerUserReport.as_view('LiffControllerUserReport'))
+                 view_func=LiffReportMissionController.as_view('LiffControllerUserReport'))
+app.add_url_rule('/webhooks/assignmission',
+                 view_func=LiffAssignMissionController.as_view('LiffAssignMissionController'))
 app.add_url_rule('/webhooks/querymission',
                  view_func=LiffGetQueryPostSaveMissionController.as_view('LiffGetQueryPostSaveFileMissionController'))
 app.add_url_rule('/webhooks/public/<path:path>',
