@@ -172,13 +172,55 @@
                                 <div class="modal-body">
                                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                                     <p>"請耐心等待，上傳照片視窗會自動關閉。"</p>
-
+									
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                <div class="container">
+                    <!-- Trigger the modal with a button
+						<button type="button" onclick="timeclosemodal()" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Open Modal</button>
+					-->
+                    <!-- Modal -->
+                    <div class="modal fade" id="closeModal" role="dialog">
+                        <div class="modal-dialog modal-sm">
+                            <!-- Modal content-->
+                            <div class="modal-content">
+                                <div class="modal-body">
+                                    <!-- <button type="button" class="close" data-dismiss="modal">&times;</button>-->
+                                    <p>"請註冊水利署通報機器人。"</p>
+									<div class="modal-footer">
+									  <button type="button" class="btn btn-default" data-dismiss="modal" id="closebtn">註冊</button>
+									</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+				<div class="container">
+                    <!-- Trigger the modal with a button
+						<button type="button" onclick="timeclosemodal()" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Open Modal</button>
+					-->
+                    <!-- Modal -->
+                    <div class="modal fade" id="registerModal" role="dialog">
+                        <div class="modal-dialog modal-sm">
+                            <!-- Modal content-->
+                            <div class="modal-content">
+                                <div class="modal-body">
+                                    <!-- <button type="button" class="close" data-dismiss="modal">&times;</button>-->
+                                    <p>"請註冊水利署網頁。"</p>
+									<div class="modal-footer">
+									  <button type="button" class="btn btn-default" data-dismiss="modal" id="registerbtn">註冊</button>
+									</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+				
                 <div class="login100-form validate-form">
                     <span class="login100-form-title p-b-33">任務回報</span>
                     <div class="container-fluid">
@@ -314,7 +356,7 @@
 <script>
     window.onload = function() {
         var myLiffId = "";
-        fetch('/webhooks/getliffid')
+        fetch("/webhooks/getliffid?type=reportpage")
             .then(function(reqResponse) {
                 return reqResponse.json();
             })
@@ -358,16 +400,71 @@
 
     function initializeApp(myLiffId) {
         const context = liff.getContext();
+		var contextUserId = context.userId
+        if (contextUserId == undefined) {
+             contextUserId = '';
+        }
+		$("#closebtn").on('click', function(e) {
+			liff.openWindow({
+				url: 'http://line.me/ti/p/@246hwrzi',
+				external: false
+			});
+			liff.closeWindow();
+		});
+		$("#registerbtn").on('click', function(e) {
+			liff.openWindow({
+				url: 'http://ncsist.wrapoc.tk/registration?sender='+contextUserId,
+				external: true
+			});
+			liff.closeWindow();
+		});
         //console.log(context);
         //document.getElementById("liffcontext").textContent = liff.getContext().userId;
+		$.ajax({
+			url: '/webhooks/verify',
+			data: JSON.stringify({'lineuserid': contextUserId}),
+			type: "POST",
+			dataType: "json",
+			contentType: "application/json;charset=utf-8",
+			success: function(returnData){
+			    if ('verify' in returnData){
+                    console.log(returnData);
+			        if(returnData['verify']== -1 ){
+                       $('#closeModal').modal({backdrop: 'static', keyboard: false});
+			        }else if(returnData['verify']== 0 ){
+						$('#registerModal').modal({backdrop: 'static', keyboard: false});
+						
+					}
+					else if (returnData['verify']== 1){
+                        $.ajax({
+							url: '/webhooks/verify',
+							data: JSON.stringify({'missionid': missionID}),
+							type: "POST",
+							dataType: "json",
+							contentType: "application/json;charset=utf-8",
+							success: function(returnData){},
+							error: function(xhr, ajaxOptions, thrownError){
+								console.log(xhr.status);
+								console.log(thrownError);
+								}
+							});
+			        }
+			    }
+
+			},
+			error: function(xhr, ajaxOptions, thrownError){
+				console.log(xhr.status);
+				console.log(thrownError);
+				$('#closeModal').modal('show');
+			}
+		});
+
         $("#signUp").on('click', function(e) {
             if (checkVaildate()) {
+                $('#myModal').modal('show');
                 timeclosemodal();
                 var pump_car_list = '';
-                var contextUserId = context.userId
-                if (contextUserId == undefined) {
-                    contextUserId = '';
-                }
+                
                 let checkbox = document.getElementsByName('checkbox');
                 checkbox.forEach((element) => {
                     if (element.checked == true) {
@@ -391,6 +488,28 @@
                 if (extension == undefined) {
                     extension = '';
                 }
+                $.post('/webhooks/querymission', {
+                        mission_id: missionID,
+                        site_condition: site_condition,
+                        flood_deep: flood_deep,
+                        site_pic_url: "",
+                        pump_car_list: pump_car_list,
+                        line_id: contextUserId,
+                        ext: extension,
+						report_no:$("#input_base").val().split('-')[1]
+                    },
+                    function(data, status) {
+
+
+                        if (data == '派遣任務回報成功!') {
+                            //alert(data);
+                            //window.location.href = './login';
+                        } else {
+                            //alert(data);
+                        }
+                        //alert("請耐心等待，上傳照片視窗會自動關閉。");
+                    });
+
                 $.ajax({
                     url: "/webhooks/uploadimage?mission_id=" + missionID,
                     data: formData,
@@ -403,8 +522,16 @@
                         document.getElementById("loader").style.display = "none";
                         //alert("上傳完成!");
                         if (liff.isInClient()) {
+							
                             liff.closeWindow();
-
+							liff.sendMessages([{
+								'type': 'text',
+								'text': $("#input_base").val().split('-')[1]+"已回報完畢"
+							}]).then(function() {
+								//window.alert('Message sent');
+							}).catch(function(error) {
+								//window.alert('Error sending message: ' + error);
+							});
                         } else {
                             //window.location.href = "about:blank";
                             //window.close();
@@ -419,26 +546,7 @@
 
                     }
                 });
-                $.post('/webhooks/querymission', {
-                        mission_id: missionID,
-                        site_condition: site_condition,
-                        flood_deep: flood_deep,
-                        site_pic_url: "",
-                        pump_car_list: pump_car_list,
-                        line_id: contextUserId,
-                        ext: extension,
-                    },
-                    function(data, status) {
-                        $('#myModal').modal('show');
 
-                        if (data == '派遣任務回報成功!') {
-                            //alert(data);
-                            //window.location.href = './login';
-                        } else {
-                            //alert(data);
-                        }
-                        //alert("請耐心等待，上傳照片視窗會自動關閉。");
-                    });
             } else {
                 alert('請檢查是否填妥資訊!');
             }
@@ -487,6 +595,7 @@
         function timeclosemodal() {
             window.setTimeout(hide_modal, 3000);
         }
+
     }
 </script>
 

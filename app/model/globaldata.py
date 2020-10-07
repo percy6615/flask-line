@@ -31,7 +31,7 @@ class GlobalInMem:
     def getGroupList(self):
         return self.groupsDic
 
-    def updateUser(self, senderid, groupname):
+    def updateDataBaseUser(self, senderid, groupname):
         return MySQLs().run(
             "update disaster_userlist set webflag = 1, groupname='%(groupname)s' where senderid='%(senderid)s' and sourcetype = 'user'" % (
                 {"senderid": senderid, "groupname": groupname}))

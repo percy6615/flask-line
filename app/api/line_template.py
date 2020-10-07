@@ -5,12 +5,8 @@ from linebot.models import ButtonsTemplate, URIAction, TemplateSendMessage, Bubb
     BoxComponent, TextComponent, IconComponent, SpacerComponent, ButtonComponent, SeparatorComponent, FlexSendMessage
 
 # wra_baseuri = 'http://ncsist.wrapoc.tk'
+from app import webhook_baseuri, image_register_static, wra_baseuri, wra_register
 
-webhook_baseuri = os.getenv('webhook_baseuri')
-wra_baseuri = os.getenv('wra_baseuri')
-wra_register = os.getenv('wra_register')
-image_sign_static = os.getenv('image_sign_static')
-image_register_static = os.getenv('image_register_static')
 
 def buttonRegisterTemplate(user_id):
     button_template = ButtonsTemplate(
@@ -45,7 +41,7 @@ def flexReportMessageTemplate(jsonObj):
                     "contents": [
                         {
                             "type": "icon",
-                            "url": webhook_baseuri + "/static/images/warning.png"
+                            "url": webhook_baseuri + "/static/images/sys/warning.png"
                         },
                         {
                             "type": "text",
@@ -76,7 +72,7 @@ def flexReportMessageTemplate(jsonObj):
         },
         "hero": {
             "type": "image",
-            "url": webhook_baseuri + "/static/images/logo.png",
+            "url": webhook_baseuri + "/static/images/sys/logo.png",
             "size": "full",
             "aspectRatio": "20:9",
             "aspectMode": "cover",
@@ -108,7 +104,7 @@ def flexReportMessageTemplate(jsonObj):
                                     "contents": [
                                         {
                                             "type": "icon",
-                                            "url": webhook_baseuri + "/static/images/iconswater30.png"
+                                            "url": webhook_baseuri + "/static/images/sys/iconswater30.png"
                                         },
                                         {
                                             "type": "text",
@@ -158,7 +154,7 @@ def flexReportMessageTemplate(jsonObj):
                                     "contents": [
                                         {
                                             "type": "icon",
-                                            "url": webhook_baseuri + "/static/images/iconswater30.png"
+                                            "url": webhook_baseuri + "/static/images/sys/iconswater30.png"
                                         },
                                         {
                                             "type": "text",
@@ -207,7 +203,7 @@ def flexReportMessageTemplate(jsonObj):
                                     "contents": [
                                         {
                                             "type": "icon",
-                                            "url": webhook_baseuri + "/static/images/iconswater30.png"
+                                            "url": webhook_baseuri + "/static/images/sys/iconswater30.png"
                                         },
                                         {
                                             "type": "text",
@@ -257,7 +253,7 @@ def flexReportMessageTemplate(jsonObj):
                                     "contents": [
                                         {
                                             "type": "icon",
-                                            "url": webhook_baseuri + "/static/images/iconswater30.png"
+                                            "url": webhook_baseuri + "/static/images/sys/iconswater30.png"
                                         },
                                         {
                                             "type": "text",
@@ -305,7 +301,7 @@ def flexReportMessageTemplate(jsonObj):
                                     "contents": [
                                         {
                                             "type": "icon",
-                                            "url": webhook_baseuri + "/static/images/iconswater30.png"
+                                            "url": webhook_baseuri + "/static/images/sys/iconswater30.png"
                                         },
                                         {
                                             "type": "text",
@@ -354,7 +350,7 @@ def flexReportMessageTemplate(jsonObj):
                                     "contents": [
                                         {
                                             "type": "icon",
-                                            "url": webhook_baseuri + "/static/images/iconswater30.png"
+                                            "url": webhook_baseuri + "/static/images/sys/iconswater30.png"
                                         },
                                         {
                                             "type": "text",
@@ -409,8 +405,8 @@ def flexReportMessageTemplate(jsonObj):
                     "action": {
                         "type": "uri",
                         "label": "回報資訊",
-                        #"uri": wra_baseuri + "/reportpage?mission_id=" + 'db1a102d-5be6-4cfa-8f0a-8788146bb584'
-                        "uri":"https://liff.line.me/1654967293-75RpAzOp?mission_id=" + 'db1a102d-5be6-4cfa-8f0a-8788146bb584'
+                        #"uri": wra_baseuri + "/reportpage?mission_id=" + jsonObj['mission_id']
+                        "uri":"https://liff.line.me/1654967293-75RpAzOp?mission_id=" + jsonObj['mission_id']
                     },
                     "color": "#64AAFFFF",
                     "height": "sm",
@@ -447,7 +443,7 @@ def flexReportMessageTemlate(user_id):
     bubble = BubbleContainer(
         direction='ltr',
         hero=ImageComponent(
-            url=webhook_baseuri + '/static/images/sign_icon.png',
+            url=webhook_baseuri + '/static/images/sys/sign_icon.png',
             size='full',
             aspect_ratio='20:13',
             aspect_mode='cover',

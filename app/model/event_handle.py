@@ -2,7 +2,7 @@ from abc import ABC
 from linebot.models import FollowEvent, JoinEvent, SourceGroup, SourceRoom
 from app.model.message_interface import MessageInterface
 
-
+#user
 class FollowEventHandle(MessageInterface, ABC):
     def __init__(self, event, profile, channel_access_token):
         self.channel_access_token = channel_access_token
@@ -37,7 +37,7 @@ class FollowEventHandle(MessageInterface, ABC):
             {"eventSourceUserId": self.eventSourceUserId, "channel_access_token": self.channel_access_token})
         return delSql
 
-
+#group
 class JoinEventHandle(MessageInterface, ABC):
     def __init__(self, event, summary, channel_access_token):
         self.channel_access_token = channel_access_token

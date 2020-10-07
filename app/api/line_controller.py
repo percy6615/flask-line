@@ -32,6 +32,7 @@ from werkzeug.utils import redirect
 
 from .line_template import buttonRegisterTemplate, flexReportMessageTemlate, flexReportMessageTemplate
 from .. import globalRegisterUser, FlaskApp, GlobalInMem, globalRegisterGroup
+from ..database.mysql_engine import MySQLs
 
 from ..model.event_handle import FollowEventHandle, JoinEventHandle
 
@@ -64,6 +65,13 @@ def make_static_tmp_dir():
             raise
 
 
+def isUserRegister(user_id):
+    if user_id in globalRegisterUser:
+        if globalRegisterUser[user_id]['webflag'] == 1:
+            return True
+    return False
+
+
 class LineController(MethodView):
 
     def __init__(self, *args, **kwargs):
@@ -91,7 +99,7 @@ class LineController(MethodView):
                 #         [TextSendMessage(text="沒註冊本系統，請點選註冊，謝謝。"), buttonRegisterTemplate(eventSourceUserId)])
                 #     return
             elif eventSourceType == 'group':
-                if not self.isUserRegister(eventSourceUserId):
+                if not isUserRegister(eventSourceUserId):
                     print()
                     # profile = line_bot_api.get_profile(eventSourceUserId)
                     # line_bot_api.reply_message(
@@ -105,7 +113,7 @@ class LineController(MethodView):
                     #     [TextSendMessage(text="請加入機器人，謝謝。"), buttonRegisterTemplate(eventSourceUserId)])
                     # return
             elif eventSourceType == 'room':
-                if not self.isUserRegister(eventSourceUserId):
+                if not isUserRegister(eventSourceUserId):
                     # line_bot_api.reply_message(
                     #     eventreplytoken,
                     #     [TextSendMessage(text="請加入機器人，謝謝。"), buttonRegisterTemplate(eventSourceUserId)])
@@ -147,7 +155,7 @@ class LineController(MethodView):
                     #     MessageAction(label='取消', text='No!')
                     # ])
                     # template_message = buttonRegisterTemplate(event.source.user_id)
-                    data = {'mission_id': '497d1823-c3b5-4991-a272-e58fb848a329', 'base_unit': '第四河川局',
+                    data = {'mission_id': '65b8a1fb-e007-472a-b8d3-e1b2e575d30a', 'base_unit': '第四河川局',
                             'reportform_id': 'RP12365854', 'dispatch_unit': '第八河川局', 'mission_status': '進行預佈',
                             'pumpcar_num': '8',
                             'location': '桃園市中壢區中央西路888號', 'remarks': '氣象局預報大雨即將來襲，請盡速前往進行欲佈作業。', 'sender': 'ad',
@@ -184,7 +192,7 @@ class LineController(MethodView):
                     #     MessageAction(label='取消', text='No!')
                     # ])
                     template_message = buttonRegisterTemplate(event.source.user_id)
-                    data = {'mission_id': '497d1823-c3b5-4991-a272-e58fb848a329', 'base_unit': '第四河川局',
+                    data = {'mission_id': '65b8a1fb-e007-472a-b8d3-e1b2e575d30a', 'base_unit': '第四河川局',
                             'reportform_id': 'RP12365854', 'dispatch_unit': '第八河川局', 'mission_status': '進行預佈',
                             'pumpcar_num': '8',
                             'location': '桃園市中壢區中央西路888號', 'remarks': '氣象局預報大雨即將來襲，請盡速前往進行欲佈作業。', 'sender': 'ad',
@@ -376,12 +384,6 @@ class LineController(MethodView):
         logging.info("Got memberLeft event")
         # app.logger.info("Got memberLeft event")
 
-    def isUserRegister(self, user_id):
-        if user_id in globalRegisterUser:
-            if globalRegisterUser[user_id]['webflag'] == 1:
-                return True
-        return False
-
 
 class LineWebhooksStaticPathController(MethodView):
     # def __init__(self, *args, **kwargs):
@@ -395,12 +397,12 @@ class LineWebhooksStaticPathController(MethodView):
     def send_static_content(self, path):
         return send_from_directory('static', path)
 
-
+#status action
+#webflag webpage register
 class LineRegisterController(MethodView):
     # def __init__(self, *args, **kwargs):
     # print()
     # super.__init__(*args, **kwargs)
-    @staticmethod
     def post(self):
         # body = request.get_data(as_text=True)
         json_body = request.get_json()
@@ -410,14 +412,13 @@ class LineRegisterController(MethodView):
             else:
                 globalRegisterUser[json_body['senderid']]['webflag'] = 1
                 globalRegisterUser[json_body['senderid']]['groupname'] = json_body['groupname']
-                print(GlobalInMem.updateUser(json_body['senderid'], json_body['groupname']))
+                print(GlobalInMem().updateDataBaseUser(json_body['senderid'], json_body['groupname']))
             return {"success": 200}
         else:
             return {"fail": "fuck no content"}
 
     # @routerCache.cached(timeout=50)
-    @staticmethod
-    def get():
+    def get(self):
         if request.args.get('flag') == str(1):
             return Response("line 帳號已註冊過!", content_type="application/json; charset=utf-8")
         else:
@@ -425,10 +426,15 @@ class LineRegisterController(MethodView):
 
 
 class LineRepostMessageToLineBotController(MethodView):
+    #TODO
     def post(self):
         json_body = request.get_json()
         dispatch_unit = json_body['dispatch_unit']
         groupid = None
+        sql = "INSERT INTO wraproject.pump_mission_list (mission_id, base_unit, report_no,dispatch_unit,mission_status,num,support_location,sender,create_time) VALUES ('"  +json_body['mission_id']+"', '"+json_body['base_unit']+"', '"+json_body['reportform_id']+"', '"+json_body['dispatch_unit']+"', '" +json_body['mission_status']+"', '"+json_body['pumpcar_num']+"', '"+json_body['location']+"', '"+json_body['sender']+"','"+json_body['create_time']+"')"
+
+        val = MySQLs().run(sql)
+
         for key in globalRegisterGroup.keys():
             if globalRegisterGroup[key]['groupname'] == dispatch_unit:
                 groupid = key
@@ -439,7 +445,7 @@ class LineRepostMessageToLineBotController(MethodView):
         return {'success': 200}
 
     def get(self):
-        data = {'mission_id': '497d1823-c3b5-4991-a272-e58fb848a329', 'base_unit': '第四河川局',
+        data = {'mission_id': '65b8a1fb-e007-472a-b8d3-e1b2e575d30a', 'base_unit': '第四河川局',
                 'reportform_id': 'RP12365854', 'dispatch_unit': '第八河川局', 'mission_status': '進行預佈',
                 'pumpcar_num': '8',
                 'location': '桃園市中壢區中央西路888號', 'remarks': '氣象局預報大雨即將來襲，請盡速前往進行欲佈作業。', 'sender': 'ad',

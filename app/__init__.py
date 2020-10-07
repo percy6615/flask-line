@@ -21,6 +21,13 @@ globalRegisterUser = globalInMem.getUserList()
 globalRegisterGroup = globalInMem.getGroupList()
 globalMissionData = dict()
 
+webhook_baseuri = os.getenv('webhook_baseuri')
+wra_baseuri = os.getenv('wra_baseuri')
+wra_register = os.getenv('wra_register')
+image_sign_static = os.getenv('image_sign_static')
+image_register_static = os.getenv('image_register_static')
+
+
 @singleton
 class FlaskApp:
     def __init__(self):

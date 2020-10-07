@@ -8,11 +8,12 @@ from flask import render_template, request, send_from_directory, make_response, 
 from flask.views import MethodView
 from werkzeug.utils import secure_filename
 
+from app import webhook_baseuri, globalRegisterUser, wra_baseuri, image_sign_static
 from app.database.mysql_engine import MySQLs
 
-liffID = os.getenv('LIFF_BIND_ID')
-webhook_baseuri = os.getenv('webhook_baseuri')
-
+liffReportpageID = os.getenv('LIFF_REPORT_ID')
+liffAssignID = os.getenv('LIFF_Assign_ID')
+wra_inn_baseuri = os.getenv('wra_inn_baseuri')
 class LiffControllerToolsBot(MethodView):
     def get(self):
         return render_template('toolsbot.html', param1=str(random.random()))
@@ -30,10 +31,10 @@ class LiffReportMissionController(MethodView):
             key = request.args['mission_id']
             return render_template('reportpage.html', mission_id=key)
 
+
 class LiffAssignMissionController(MethodView):
     def get(self):
-
-            return render_template('assign_mission.html')
+        return render_template('assign_mission.html')
 
 
 def send_static_content(path):
@@ -71,18 +72,32 @@ class LiffGetQueryPostSaveMissionController(MethodView):
     def post(self):
         post_data = request.values
         if post_data['ext'] is not None:
-            static_tmp_path = webhook_baseuri +"/" +'static/images/disasterpics/'+post_data['mission_id']+"."+post_data['ext']
-
+            static_tmp_path = webhook_baseuri + "/" + 'static/images/disasterpics/' + post_data['mission_id'] + "." + \
+                              post_data['ext']
         val = MySQLs().run(
             "update wraproject.pump_mission_list set site_condition  = '" + post_data[
                 'site_condition'] + "', flood_deep = '" +
             post_data['flood_deep']
             + "', site_pic_url = '" + static_tmp_path + "', dispatch_car_list = '" + post_data[
-                'pump_car_list'] + "',lineuserid='"+post_data['line_id']+"' where mission_id = '" + post_data['mission_id'] + "'")
+                'pump_car_list'] + "',lineuserid='" + post_data['line_id'] + "' where mission_id = '" + post_data[
+                'mission_id'] + "'")
         if val is not None:
             # jsondata = {'site_condition': post_data['site_condition'], 'site_pic_url': static_tmp_path ,
             #             'pump_car_list': post_data['pump_car_list'], 'line_id':post_data['line_id'], 'mission_id':post_data['mission_id']}
             # requests.post(url='',json=jsondata)
+
+            jsondata = dict()
+            jsondata['site_pic_url'] = static_tmp_path
+            jsondata['site_condition']= post_data['site_condition']
+            jsondata['mission_id'] = post_data['mission_id']
+            jsondata['flood_deep'] = post_data['flood_deep']
+            jsondata['pump_car_list'] = post_data['pump_car_list']
+            jsondata['line_id'] = post_data['line_id']
+            jsondata['report_no'] = post_data['line_id']
+            jsondata['report_no'] = post_data['report_no']
+            r = requests.post(wra_inn_baseuri+"/reportmission", data=jsondata)
+            # if r.status is not 200:
+            #     r = requests.post(wra_inn_baseuri + "/reportmission", data=jsondata)
             return {'status': "success"}
         else:
             return {'status': "fail"}
@@ -101,7 +116,36 @@ class LiffUploadImageController(MethodView):
 
 class LiffGetIDFromLine(MethodView):
     def get(self):
-        liffKey = {"id": liffID}
+        type = request.args.get('type')
+        liffKey = ''
+        if type == 'reportpage':
+            liffKey = {"id": liffReportpageID}
+        elif type == 'assign_mission':
+            liffKey = {"id": liffAssignID}
         response = make_response(liffKey)
+        response.status_code = 200
+        return response
+
+def isUserRegister(user_id):
+    if user_id in globalRegisterUser:
+        if globalRegisterUser[user_id]['webflag'] == 1:
+            return True
+    return False
+
+class LiffVerifyController(MethodView):
+    def post(self):
+        jsondata = request.get_json()
+        verify = {'verify': -1} #-1 line no register no webflag
+        if 'lineuserid' in jsondata: #webflag
+            uid = jsondata['lineuserid']
+            if uid in globalRegisterUser:
+                if globalRegisterUser[uid]['webflag'] == 1:
+                    verify = {'verify': 1}  # 1 line register webflag
+                else:
+                    verify = {'verify': 0}  # 0 line register no webflag
+        elif 'missionid' in jsondata:
+            mid = jsondata['missionid']
+            requests.post(wra_inn_baseuri+"/read",{"missionid":mid})
+        response = make_response(verify)
         response.status_code = 200
         return response

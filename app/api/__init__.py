@@ -1,3 +1,5 @@
+import os
+
 from flask import render_template
 
 from .. import routerApp
@@ -8,10 +10,12 @@ from .line_controller import LineController, LineRepostMessageToLineBotControlle
     LineWebhooksStaticPathController
 from .liff_controller import LiffReportMissionController, LiffControllerToolsBot, \
     LiffPublicPathController, LiffGetQueryPostSaveMissionController, LiffUploadImageController, LiffGetIDFromLine, \
-    LiffAssignMissionController
+    LiffAssignMissionController, LiffVerifyController
 
+#line webhooks callback
 app.add_url_rule('/webhooks/line',
                  view_func=LineController.as_view('LineController'))
+#file static path
 app.add_url_rule('/webhooks/static/<path:path>',
                  view_func=LineWebhooksStaticPathController.as_view('LineWebhooksStaticPathController'))
 app.add_url_rule('/webhooks/registerdata',
@@ -31,5 +35,10 @@ app.add_url_rule('/webhooks/public/<path:path>',
                  view_func=LiffPublicPathController.as_view('LiffPublicPathController'))
 app.add_url_rule('/webhooks/uploadimage',
                  view_func=LiffUploadImageController.as_view('LiffUploadImageController'))
+
 app.add_url_rule('/webhooks/getliffid',
                  view_func=LiffGetIDFromLine.as_view('LiffGetIDFromLine'))
+
+app.add_url_rule('/webhooks/verify',view_func=LiffVerifyController.as_view('LiffVerifyController'))
+
+
