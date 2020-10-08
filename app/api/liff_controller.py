@@ -101,7 +101,7 @@ class LiffGetQueryPostSaveMissionController(MethodView):
             return {'status': "success"}
         else:
             return {'status': "fail"}
-
+from PIL import Image, ExifTags
 
 class LiffUploadImageController(MethodView):
     def post(self):
@@ -111,6 +111,19 @@ class LiffUploadImageController(MethodView):
         if filedata is not None:
             ext = filedata.filename.split('.')[1]
             filedata.save(os.path.join(static_tmp_path, secure_filename(missionID + "." + ext)))
+            image = Image.open(os.path.join(static_tmp_path, secure_filename(missionID + "." + ext)))
+            for orientation in ExifTags.TAGS.keys():
+                if ExifTags.TAGS[orientation] == 'Orientation':
+                    break
+            exif = dict(image._getexif().items())
+            if exif[orientation] == 3:
+                image = image.rotate(180, expand=True)
+            elif exif[orientation] == 6:
+                image = image.rotate(270, expand=True)
+            elif exif[orientation] == 8:
+                image = image.rotate(90, expand=True)
+            image.save(os.path.join(static_tmp_path, secure_filename(missionID + "." + ext)))
+            image.close()
         return {"success": "200"}
 
 
