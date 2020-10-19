@@ -7,7 +7,7 @@ import requests
 from flask import request, send_from_directory, Response
 from flask_restful import abort
 from linebot import (
-    LineBotApi, WebhookHandler
+    LineBotApi, WebhookHandler, WebhookParser
 )
 from linebot.exceptions import (
     LineBotApiError, InvalidSignatureError
@@ -44,6 +44,7 @@ if channel_secret is None or channel_access_token is None:
     sys.exit(1)
 line_bot_api = LineBotApi(channel_access_token)
 handler = WebhookHandler(channel_secret)
+parser = WebhookParser(channel_secret)
 from flask.views import MethodView
 
 line_dropfile = 'line_dropfile'
@@ -90,17 +91,17 @@ class LineController(MethodView):
         if eventType not in notNeedRestricted:
             eventSourceUserId = json_body['events'][0]['source']['userId']
             eventSourceType = json_body['events'][0]['source']['type']
-            eventreplytoken = json_body['events'][0]['replyToken']
+            # eventreplytoken = json_body['events'][0]['replyToken']
             if eventSourceType == 'user':
-                print()
-                # if not self.isUserRegister(eventSourceUserId):
+                if not self.isUserRegister(eventSourceUserId):
+                    pass
                 #     line_bot_api.reply_message(
                 #         eventreplytoken,
                 #         [TextSendMessage(text="沒註冊本系統，請點選註冊，謝謝。"), buttonRegisterTemplate(eventSourceUserId)])
                 #     return
             elif eventSourceType == 'group':
                 if not isUserRegister(eventSourceUserId):
-                    print()
+                    pass
                     # profile = line_bot_api.get_profile(eventSourceUserId)
                     # line_bot_api.reply_message(
                     #     eventreplytoken, [
@@ -114,14 +115,16 @@ class LineController(MethodView):
                     # return
             elif eventSourceType == 'room':
                 if not isUserRegister(eventSourceUserId):
+                    pass
                     # line_bot_api.reply_message(
                     #     eventreplytoken,
                     #     [TextSendMessage(text="請加入機器人，謝謝。"), buttonRegisterTemplate(eventSourceUserId)])
-                    return
+                    # return
 
         logging.info("Request body: " + body)
         # handle webhook body
         try:
+            # self.middleParser(body, signature)
             handler.handle(body, signature)
         except LineBotApiError as e:
             print("Got exception from LINE Messaging API: %s\n" % e.message)
@@ -142,6 +145,12 @@ class LineController(MethodView):
 
         return {'success': 200}
 
+    def middleParser(self, body, signature):
+        events = parser.parse(body, signature)
+        for event in events:
+            print(event)
+        pass
+
     @handler.add(MessageEvent, message=TextMessage)
     def handle_text_message(event):
         text = event.message.text
@@ -161,6 +170,8 @@ class LineController(MethodView):
                             'location': '桃園市中壢區中央西路888號', 'remarks': '氣象局預報大雨即將來襲，請盡速前往進行欲佈作業。', 'sender': 'ad',
                             'create_time': '2020/9/21 14:34:22'}
                     line_bot_api.reply_message(event.reply_token, flexReportMessageTemplate(data))
+                elif text == 'create':
+                    line_bot_api.create_rich_menu()
 
                 if text == 'profile':
                     profile = line_bot_api.get_profile(event.source.user_id)
