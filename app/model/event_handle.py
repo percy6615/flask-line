@@ -35,7 +35,7 @@ class FollowEventHandle(MessageInterface, ABC):
     def setDeleteEventSql(self):
         delSql = "delete from disaster_userlist where userid = '%(eventSourceUserId)s' and channeltoken = '%(channel_access_token)s'" % (
             {"eventSourceUserId": self.eventSourceUserId, "channel_access_token": self.channel_access_token})
-        return delSql
+        return delSql, self.eventSourceUserId
 
 #group
 class JoinEventHandle(MessageInterface, ABC):
@@ -79,13 +79,16 @@ class JoinEventHandle(MessageInterface, ABC):
 
     def setDeleteEventSql(self):
         delSql = 'select 0'
+        eventId = ''
         if self.eventSourceGroupId is not None:
+            eventId = self.eventSourceGroupId
             delSql = "delete from disaster_userlist where groupid = '%(eventSourceGroupId)s' and channeltoken = '%(" \
                      "channel_access_token)s'" % (
                 {"eventSourceGroupId": self.eventSourceGroupId, "channel_access_token": self.channel_access_token})
         elif self.eventSourceRoomId is not None:
+            eventId = self.eventSourceRoomId
             delSql = "delete from disaster_userlist where roomid = '%(eventSourceRoomId)s' and channeltoken = '%(" \
                      "channel_access_token)s'" % (
                 {"eventSourceRoomId": self.eventSourceRoomId, "channel_access_token": self.channel_access_token})
-        return delSql
+        return delSql,eventId
 

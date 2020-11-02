@@ -1,6 +1,6 @@
 import random
 
-from flask import Flask, send_from_directory
+from flask import Flask, send_from_directory, Response, send_file
 from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
@@ -58,6 +58,18 @@ app = routerApp.getApp()
 def favicon():
     return send_from_directory('static', 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
+# static_disasterpics_path = os.path.join("app", 'static')
+# @app.route('/.well-known/acme-challenge/<id>')
+# def acme_challenge(id):
+#     fp = open(static_disasterpics_path+"/"+id, "w")
+#
+#     # 將 lines 所有內容寫入到檔案
+#     lines = [id]
+#     fp.writelines(lines)
+#
+#     # 關閉檔案
+#     fp.close()
+#     return Response(id)
 
 from . import api
 from . import auth

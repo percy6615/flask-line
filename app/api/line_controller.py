@@ -30,7 +30,8 @@ from linebot.models import (
     ImageSendMessage)
 from werkzeug.utils import redirect
 
-from .line_template import buttonRegisterTemplate, flexReportMessageTemlate, flexReportMessageTemplate
+from .line_template import buttonRegisterTemplate, flexReportMessageTemlate, flexReportMessageTemplate, \
+    flexDispatchDisaster
 from .. import globalRegisterUser, FlaskApp, GlobalInMem, globalRegisterGroup
 from ..database.mysql_engine import MySQLs
 
@@ -53,6 +54,13 @@ static_tmp_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'stat
 static_disasterpics_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'images', 'disasterpics')
 
 
+def isUserRegister(user_id):
+    if user_id in globalRegisterUser:
+        if globalRegisterUser[user_id]['webflag'] == 1:
+            return True
+    return False
+
+
 # function for create tmp dir for download content
 def make_static_tmp_dir():
     try:
@@ -64,13 +72,6 @@ def make_static_tmp_dir():
             pass
         else:
             raise
-
-
-def isUserRegister(user_id):
-    if user_id in globalRegisterUser:
-        if globalRegisterUser[user_id]['webflag'] == 1:
-            return True
-    return False
 
 
 class LineController(MethodView):
@@ -93,7 +94,7 @@ class LineController(MethodView):
             eventSourceType = json_body['events'][0]['source']['type']
             # eventreplytoken = json_body['events'][0]['replyToken']
             if eventSourceType == 'user':
-                if not self.isUserRegister(eventSourceUserId):
+                if not isUserRegister(eventSourceUserId):
                     pass
                 #     line_bot_api.reply_message(
                 #         eventreplytoken,
@@ -169,7 +170,20 @@ class LineController(MethodView):
                             'pumpcar_num': '8',
                             'location': '桃園市中壢區中央西路888號', 'remarks': '氣象局預報大雨即將來襲，請盡速前往進行欲佈作業。', 'sender': 'ad',
                             'create_time': '2020/9/21 14:34:22'}
-                    line_bot_api.reply_message(event.reply_token, flexReportMessageTemplate(data))
+                    data = {
+                        'Type': 1, 'OperatorName': '第一河川局', 'Location': '你家', 'Treatment': '-', 'Situation': '-',
+                        'Depth': '15', 'RecededDate': '-', 'IsReceded': True, 'SourceCode': 1, 'CategoryCode': 1,
+                        'Time': '2019-07-18 09:00:00',
+                    }
+                    data1 = {'DisasterFloodingID': 'b76e4d5f-294e-448c-92d2-489ed8e9ae11',
+                             'Time': '2019-07-18 09:00:00', 'CategoryCode': 1, 'SourceCode': 1, 'CaseNo': '員林彰基淹水感測',
+                             'OperatorName': '第四河川局', 'TownCode': '1000710', 'Situation': '未退水',
+                             'Location': '彰化縣員林巿靜修路員林基督教醫院旁', 'Point': {'Latitude': 23.962316, 'Longitude': 120.567229},
+                             'Depth': 35.00841, 'Treatment': '', 'IsReceded': True,
+                             'RecededDate': '2019-07-18 09:00:00', 'Type': 1, 'Photo': []}
+
+                    # line_bot_api.reply_message(event.reply_token, flexReportMessageTemplate(data))
+                    line_bot_api.reply_message(event.reply_token, flexDispatchDisaster(data1))
                 elif text == 'create':
                     line_bot_api.create_rich_menu()
 
@@ -408,8 +422,9 @@ class LineWebhooksStaticPathController(MethodView):
     def send_static_content(self, path):
         return send_from_directory('static', path)
 
-#status action
-#webflag webpage register
+
+# status action
+# webflag webpage register
 class LineRegisterController(MethodView):
     # def __init__(self, *args, **kwargs):
     # print()
@@ -437,12 +452,16 @@ class LineRegisterController(MethodView):
 
 
 class LineRepostMessageToLineBotController(MethodView):
-    #TODO
+    # TODO
     def post(self):
         json_body = request.get_json()
         dispatch_unit = json_body['dispatch_unit']
         groupid = None
-        sql = "INSERT INTO wraproject.pump_mission_list (mission_id, base_unit, report_no,dispatch_unit,mission_status,num,support_location,sender,create_time) VALUES ('"  +json_body['mission_id']+"', '"+json_body['base_unit']+"', '"+json_body['reportform_id']+"', '"+json_body['dispatch_unit']+"', '" +json_body['mission_status']+"', '"+json_body['pumpcar_num']+"', '"+json_body['location']+"', '"+json_body['sender']+"','"+json_body['create_time']+"')"
+        sql = "INSERT INTO wraproject.pump_mission_list (mission_id, base_unit, report_no,dispatch_unit,mission_status,num,support_location,sender,create_time) VALUES ('" + \
+              json_body['mission_id'] + "', '" + json_body['base_unit'] + "', '" + json_body['reportform_id'] + "', '" + \
+              json_body['dispatch_unit'] + "', '" + json_body['mission_status'] + "', '" + json_body[
+                  'pumpcar_num'] + "', '" + json_body['location'] + "', '" + json_body['sender'] + "','" + json_body[
+                  'create_time'] + "')"
 
         val = MySQLs().run(sql)
 
@@ -463,3 +482,43 @@ class LineRepostMessageToLineBotController(MethodView):
                 'create_time': '2020/9/21 14:34:22'}
         # line_bot_api.push_message('Cd2caf66620fdc51721a42d4e395783e2', flexReportMessageTemplate(data))
         return {'success': data}
+
+
+class LineDispatchDisasterToLineBotController(MethodView):
+    # TODO
+    def post(self):
+        json_body = request.get_json()
+        print(json_body)
+        # if(type(json_body)=="list"):
+        for j in json_body:
+                dispatch_unit = j['operatorName']
+                groupid = None
+
+                for key in globalRegisterGroup.keys():
+                    if globalRegisterGroup[key]['groupname'] == dispatch_unit:
+                        groupid = key
+                        break
+                if j is not None and groupid is not None:
+                    line_bot_api.push_message(groupid, flexDispatchDisaster(j))
+        # else:
+        #     dispatch_unit = json_body['operatorName']
+        #     groupid = None
+        #
+        #     for key in globalRegisterGroup.keys():
+        #         if globalRegisterGroup[key]['groupname'] == dispatch_unit:
+        #             groupid = key
+        #             break
+        #     if json_body is not None and groupid is not None:
+        #         line_bot_api.push_message(groupid, flexDispatchDisaster(json_body))
+
+        return {'success': 200}
+
+    def get(self):
+        data = {
+            'type': 1, 'operatorName': '第三河川局', 'location': '你家', 'treatment': '-', 'situation': '-',
+            'depth': '15', 'recededDate': '-', 'isReceded': True, 'sourceCode': 1, 'categoryCode': 1,
+            'time': '2019-07-18 09:00:00',
+        }
+        # line_bot_api.push_message('C51add1d164315ebe4e6c02ba9585fbc6', flexDispatchDisaster(data))
+
+        return {'success': 200}

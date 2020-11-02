@@ -32,9 +32,11 @@ class MessageInterface(metaclass=ABCMeta):
         return tf
 
     def deleteEvent(self):
-        delSql = self.setDeleteEventSql()
+        delSql, eventId = self.setDeleteEventSql()
         try:
             MySQLs().run(delSql)
+            if eventId in globalRegisterUser:
+                del globalRegisterUser[eventId]
         except None:
             print('delete error to db event')
 

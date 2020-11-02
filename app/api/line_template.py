@@ -45,7 +45,7 @@ def flexReportMessageTemplate(jsonObj):
                         },
                         {
                             "type": "text",
-                            "text": "災情回報",
+                            "text": "機具派遣",
                             "weight": "bold",
                             "size": "lg",
                             "color": "#FB0000FF",
@@ -405,8 +405,8 @@ def flexReportMessageTemplate(jsonObj):
                     "action": {
                         "type": "uri",
                         "label": "回報資訊",
-                        #"uri": wra_baseuri + "/reportpage?mission_id=" + jsonObj['mission_id']
-                        "uri":"https://liff.line.me/1654967293-75RpAzOp?mission_id=" + jsonObj['mission_id']
+                        # "uri": wra_baseuri + "/reportpage?mission_id=" + jsonObj['mission_id']
+                        "uri": "https://liff.line.me/1654967293-75RpAzOp?mission_id=" + jsonObj['mission_id']
                     },
                     "color": "#64AAFFFF",
                     "height": "sm",
@@ -432,12 +432,618 @@ def flexReportMessageTemplate(jsonObj):
             ]
         }
     }
-    message = FlexSendMessage(alt_text="派遣任務:" + jsonObj['reportform_id'] + " (" + create_time_str + ")",
+    message = FlexSendMessage(alt_text="機具派遣:" + jsonObj['reportform_id'] + " (" + create_time_str + ")",
                               contents=bubble)
     return message
 
 
 # jsonObj['mission_id']
+
+def isTimeFormat(input):
+    try:
+        return datetime.strptime(input, '%Y-%m-%d %H:%M:%S').strftime('%Y/%m/%d %H:%M')
+    except ValueError:
+        try:
+            return datetime.strptime(input, '%Y-%m-%dT%H:%M:%S').strftime('%Y/%m/%d %H:%M')
+        except ValueError:
+            return '-'
+
+def flexDispatchDisaster(jsonObj):
+    create_time_str = isTimeFormat(jsonObj['time'])
+    disasterSource = {1: "經濟部水利署", 2: "消防署", 3: "傳播媒體", 4: "NCDR", 6: "水規所", 7: "APP災情通報", 8: "第一河川局", 9: "第二河川局",
+                      10: "第四河川局", 11: "第五河川局", 12: "第六河川局", 13: "第七河川局", 14: "第十河川局", 15: "宜蘭縣政府", 16: "台南市政府",
+                      17: "屏東縣政府"}
+    disasterDesc = {1: "河川局", 2: "防護志工", 3: "其他", 4: "EMIC", 5: "新聞媒體", 6: "輿情資料", 7: "淹水感測", 8: "智慧水尺", 9: "語音通話"}
+    disasterType = {1: "道路", 2: "房屋積淹水", 3: "工(商)業區", 4: "農田/魚塭", 5: "其他", 6: '待查', 14: "房屋地下室積水", 15: "地區積淹水",
+                    16: "地下道積水"}
+
+
+    sourceCode = jsonObj['sourceCode']
+    if sourceCode in disasterSource:
+        sourceCode = disasterSource[sourceCode]
+    else:
+        sourceCode = "-"
+
+    categoryCode = jsonObj['categoryCode']
+    if categoryCode in disasterDesc:
+        categoryCode = disasterDesc[categoryCode]
+    else:
+        categoryCode = "-"
+
+    dtype = jsonObj['type']
+    if dtype in disasterType:
+        dtype = disasterType[dtype]
+    else:
+        dtype = "-"
+
+    isReceded = jsonObj['isReceded']
+    if isReceded:
+        isReceded = "是"
+    else:
+        isReceded = "否"
+
+    for key in jsonObj:
+        if jsonObj[key]=="":
+            jsonObj[key] = "-"
+        if type(jsonObj[key])!="str":
+            jsonObj[key] = str(jsonObj[key])
+    bubble = {
+        "type": "bubble",
+        "body": {
+            "type": "box",
+            "layout": "vertical",
+            "spacing": "none",
+            "margin": "none",
+            "backgroundColor": "#FAFAFAFA",
+            "contents": [
+                {
+                    "type": "box",
+                    "layout": "baseline",
+                    "spacing": "sm",
+                    "contents": [
+                        {
+                            "type": "icon",
+                            "url": webhook_baseuri + "/static/images/sys/warning.png"
+                        },
+                        {
+                            "type": "text",
+                            "text": "災情通知",
+                            "weight": "bold",
+                            "size": "lg",
+                            "color": "#FB0000FF",
+                            "align": "start",
+                            "contents": []
+                        },
+                        {
+                            "type": "text",
+                            "text": create_time_str,
+                            "weight": "regular",
+                            "size": "xxs",
+                            "color": "#000000FF",
+                            "align": "end",
+                            "contents": []
+                        }
+                    ]
+                },
+                {
+                    "type": "separator",
+                    "margin": "none",
+                    "color": "#4D4D48FF"
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "spacing": "sm",
+                    "margin": "lg",
+                    "position": "relative",
+                    "contents": [
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                                {
+                                    "type": "box",
+                                    "layout": "baseline",
+                                    "contents": [
+                                        {
+                                            "type": "icon",
+                                            "url": webhook_baseuri + "/static/images/sys/iconswater30.png"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "災情種類",
+                                            "size": "sm",
+                                            "color": "#7EA2F2FF",
+                                            "gravity": "top",
+                                            "wrap": True,
+                                            "decoration": "underline",
+                                            "contents": []
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "box",
+                                    "layout": "horizontal",
+                                    "spacing": "xs",
+                                    "margin": "sm",
+                                    "contents": [
+                                        {
+                                            "type": "spacer",
+                                            "size": "xxl"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": dtype,
+                                            "weight": "bold",
+                                            "size": "sm",
+                                            "color": "#666666FF",
+                                            "align": "start",
+                                            "gravity": "bottom",
+                                            "margin": "xxl",
+                                            "wrap": True,
+                                            "contents": []
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                                {
+                                    "type": "box",
+                                    "layout": "baseline",
+                                    "contents": [
+                                        {
+                                            "type": "icon",
+                                            "url": webhook_baseuri + "/static/images/sys/iconswater30.png"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "災情分區",
+                                            "size": "sm",
+                                            "color": "#7EA2F2FF",
+                                            "gravity": "top",
+                                            "decoration": "underline",
+                                            "contents": []
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "box",
+                                    "layout": "horizontal",
+                                    "spacing": "xs",
+                                    "margin": "sm",
+                                    "contents": [
+                                        {
+                                            "type": "spacer",
+                                            "size": "xxl"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": jsonObj['operatorName'],
+                                            "weight": "bold",
+                                            "size": "sm",
+                                            "color": "#666666FF",
+                                            "align": "start",
+                                            "gravity": "top",
+                                            "margin": "xxl",
+                                            "wrap": True,
+                                            "contents": []
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                                {
+                                    "type": "box",
+                                    "layout": "baseline",
+                                    "contents": [
+                                        {
+                                            "type": "icon",
+                                            "url": webhook_baseuri + "/static/images/sys/iconswater30.png"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "災害地點",
+                                            "size": "sm",
+                                            "color": "#7EA2F2FF",
+                                            "gravity": "top",
+                                            "decoration": "underline",
+                                            "contents": []
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "box",
+                                    "layout": "horizontal",
+                                    "spacing": "xs",
+                                    "margin": "sm",
+                                    "contents": [
+                                        {
+                                            "type": "spacer",
+                                            "size": "xxl"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": jsonObj['location'],
+                                            "weight": "bold",
+                                            "size": "sm",
+                                            "color": "#666666FF",
+                                            "align": "start",
+                                            "gravity": "top",
+                                            "margin": "xxl",
+                                            "wrap": True,
+                                            "contents": []
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                                {
+                                    "type": "box",
+                                    "layout": "baseline",
+                                    "contents": [
+                                        {
+                                            "type": "icon",
+                                            "url": webhook_baseuri + "/static/images/sys/iconswater30.png"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "災情描述",
+                                            "size": "sm",
+                                            "color": "#7EA2F2FF",
+                                            "gravity": "top",
+                                            "margin": "xs",
+                                            "decoration": "underline",
+                                            "contents": []
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "box",
+                                    "layout": "horizontal",
+                                    "spacing": "xs",
+                                    "margin": "sm",
+                                    "contents": [
+                                        {
+                                            "type": "spacer",
+                                            "size": "xxl"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": jsonObj['situation'],
+                                            "weight": "bold",
+                                            "size": "sm",
+                                            "color": "#666666FF",
+                                            "align": "start",
+                                            "gravity": "bottom",
+                                            "margin": "xxl",
+                                            "wrap": True,
+                                            "contents": []
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                                {
+                                    "type": "box",
+                                    "layout": "baseline",
+                                    "contents": [
+                                        {
+                                            "type": "icon",
+                                            "url": webhook_baseuri + "/static/images/sys/iconswater30.png"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "災情處置情形",
+                                            "size": "sm",
+                                            "color": "#7EA2F2FF",
+                                            "gravity": "top",
+                                            "decoration": "underline",
+                                            "contents": []
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "box",
+                                    "layout": "horizontal",
+                                    "margin": "sm",
+                                    "contents": [
+                                        {
+                                            "type": "spacer",
+                                            "size": "xxl"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": jsonObj['treatment'],
+                                            "weight": "bold",
+                                            "size": "sm",
+                                            "color": "#61696BFF",
+                                            "align": "start",
+                                            "gravity": "bottom",
+                                            "margin": "xxl",
+                                            "wrap": True,
+                                            "contents": []
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                                {
+                                    "type": "box",
+                                    "layout": "baseline",
+                                    "contents": [
+                                        {
+                                            "type": "icon",
+                                            "url": webhook_baseuri + "/static/images/sys/iconswater30.png"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "淹水深度",
+                                            "size": "sm",
+                                            "color": "#7EA2F2FF",
+                                            "align": "start",
+                                            "gravity": "top",
+                                            "decoration": "underline",
+                                            "contents": []
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "box",
+                                    "layout": "horizontal",
+                                    "spacing": "none",
+                                    "margin": "sm",
+                                    "contents": [
+                                        {
+                                            "type": "spacer",
+                                            "size": "xxl"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": jsonObj['depth'],
+                                            "weight": "bold",
+                                            "size": "sm",
+                                            "color": "#666666FF",
+                                            "align": "start",
+                                            "gravity": "bottom",
+                                            "margin": "xxl",
+                                            "wrap": True,
+                                            "contents": []
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                                {
+                                    "type": "box",
+                                    "layout": "baseline",
+                                    "contents": [
+                                        {
+                                            "type": "icon",
+                                            "url": webhook_baseuri + "/static/images/sys/iconswater30.png"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "是否退水",
+                                            "size": "sm",
+                                            "color": "#7EA2F2FF",
+                                            "align": "start",
+                                            "gravity": "top",
+                                            "decoration": "underline",
+                                            "contents": []
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "box",
+                                    "layout": "horizontal",
+                                    "spacing": "none",
+                                    "margin": "sm",
+                                    "contents": [
+                                        {
+                                            "type": "spacer",
+                                            "size": "xxl"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": isReceded ,
+                                            "weight": "bold",
+                                            "size": "sm",
+                                            "color": "#666666FF",
+                                            "align": "start",
+                                            "gravity": "bottom",
+                                            "margin": "xxl",
+                                            "wrap": True,
+                                            "contents": []
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                                {
+                                    "type": "box",
+                                    "layout": "baseline",
+                                    "contents": [
+                                        {
+                                            "type": "icon",
+                                            "url": webhook_baseuri + "/static/images/sys/iconswater30.png"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "退水時間",
+                                            "size": "sm",
+                                            "color": "#7EA2F2FF",
+                                            "align": "start",
+                                            "gravity": "top",
+                                            "decoration": "underline",
+                                            "contents": []
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "box",
+                                    "layout": "horizontal",
+                                    "spacing": "none",
+                                    "margin": "sm",
+                                    "contents": [
+                                        {
+                                            "type": "spacer",
+                                            "size": "xxl"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": isTimeFormat(jsonObj['recededDate']),
+                                            "weight": "bold",
+                                            "size": "sm",
+                                            "color": "#666666FF",
+                                            "align": "start",
+                                            "gravity": "bottom",
+                                            "margin": "xxl",
+                                            "wrap": True,
+                                            "contents": []
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                                {
+                                    "type": "box",
+                                    "layout": "baseline",
+                                    "contents": [
+                                        {
+                                            "type": "icon",
+                                            "url": webhook_baseuri + "/static/images/sys/iconswater30.png"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "災情說明",
+                                            "size": "sm",
+                                            "color": "#7EA2F2FF",
+                                            "align": "start",
+                                            "gravity": "top",
+                                            "decoration": "underline",
+                                            "contents": []
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "box",
+                                    "layout": "horizontal",
+                                    "spacing": "none",
+                                    "margin": "sm",
+                                    "contents": [
+                                        {
+                                            "type": "spacer",
+                                            "size": "xxl"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": sourceCode,
+                                            "weight": "bold",
+                                            "size": "sm",
+                                            "color": "#666666FF",
+                                            "align": "start",
+                                            "gravity": "bottom",
+                                            "margin": "xxl",
+                                            "wrap": True,
+                                            "contents": []
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                                {
+                                    "type": "box",
+                                    "layout": "baseline",
+                                    "contents": [
+                                        {
+                                            "type": "icon",
+                                            "url": webhook_baseuri + "/static/images/sys/iconswater30.png"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "災情來源",
+                                            "size": "sm",
+                                            "color": "#7EA2F2FF",
+                                            "align": "start",
+                                            "gravity": "top",
+                                            "decoration": "underline",
+                                            "contents": []
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "box",
+                                    "layout": "horizontal",
+                                    "spacing": "none",
+                                    "margin": "sm",
+                                    "contents": [
+                                        {
+                                            "type": "spacer",
+                                            "size": "xxl"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": categoryCode,
+                                            "weight": "bold",
+                                            "size": "sm",
+                                            "color": "#666666FF",
+                                            "align": "start",
+                                            "gravity": "bottom",
+                                            "margin": "xxl",
+                                            "wrap": True,
+                                            "contents": []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+    print(bubble)
+    message = FlexSendMessage(alt_text="災情通知" + " (" + create_time_str + ")",
+                              contents=bubble)
+
+    return message
+
 
 def flexReportMessageTemlate(user_id):
     bubble = BubbleContainer(

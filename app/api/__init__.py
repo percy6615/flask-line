@@ -7,7 +7,7 @@ from .. import routerApp
 app = routerApp.getApp()
 routerCache = routerApp.getCache()
 from .line_controller import LineController, LineRepostMessageToLineBotController, LineRegisterController, \
-    LineWebhooksStaticPathController
+    LineWebhooksStaticPathController, LineDispatchDisasterToLineBotController
 from .liff_controller import LiffReportMissionController, LiffControllerToolsBot, \
     LiffPublicPathController, LiffGetQueryPostSaveMissionController, LiffUploadImageController, LiffGetIDFromLine, \
     LiffAssignMissionController, LiffVerifyController
@@ -16,13 +16,14 @@ from .liff_controller import LiffReportMissionController, LiffControllerToolsBot
 app.add_url_rule('/webhooks/line',
                  view_func=LineController.as_view('LineController'))
 #file static path
-app.add_url_rule('/webhooks/static/<path:path>',
-                 view_func=LineWebhooksStaticPathController.as_view('LineWebhooksStaticPathController'))
+# app.add_url_rule('/webhooks/static/<path:path>',
+#                  view_func=LineWebhooksStaticPathController.as_view('LineWebhooksStaticPathController'))
 app.add_url_rule('/webhooks/registerdata',
                  view_func=LineRegisterController.as_view('LineRegisterController'))
 app.add_url_rule('/webhooks/repostmessage',
                  view_func=LineRepostMessageToLineBotController.as_view('LineRepostMessageToLineBotController'))
-
+app.add_url_rule('/webhooks/dispatchdisaster',
+                 view_func=LineDispatchDisasterToLineBotController.as_view('LineDispatchDisasterToLineBotController'))
 app.add_url_rule('/webhooks/lifftoolsbot',
                  view_func=LiffControllerToolsBot.as_view('LiffControllerToolsBot'))
 app.add_url_rule('/webhooks/reportpage',
@@ -40,5 +41,7 @@ app.add_url_rule('/webhooks/getliffid',
                  view_func=LiffGetIDFromLine.as_view('LiffGetIDFromLine'))
 
 app.add_url_rule('/webhooks/verify',view_func=LiffVerifyController.as_view('LiffVerifyController'))
+
+
 
 
