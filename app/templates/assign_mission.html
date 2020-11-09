@@ -272,7 +272,7 @@
                 initializeLiffOrDie(myLiffId);
             })
             .catch(function(error) {
-                document.getElementById("liffInitErrorMessage").classList.remove('hidden');
+               // document.getElementById("liffInitErrorMessage").classList.remove('hidden');
             });
         //initializeLiffOrDie(defaultLiffId);
     };
@@ -304,16 +304,20 @@
                 //document.getElementById("liffInitErrorMessage").classList.remove('hidden');
             });
     }
-
+    var contextuserid = ''
     function initializeApp(myLiffId) {
 
-        var contextuserid = liff.getContext().userId;
+        contextuserid = liff.getContext().userId;
         if(contextuserid == undefined){
             contextuserid = '';
         }
 
-           $("#btn_send_mission").on('click',function(e)
+    }
+
+
+$("#btn_send_mission").on('click',function(e)
                   {
+
                     var selector=document.getElementById('unit_select');
                     let base_unit=selector.options[selector.selectedIndex].text;
                     selector=document.getElementById('unit_dispatch');
@@ -361,10 +365,5 @@
                         return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
                     });
                 }
-
-    }
-
-
-
 </script>
 </html>
