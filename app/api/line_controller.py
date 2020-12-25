@@ -32,7 +32,7 @@ from werkzeug.utils import redirect
 
 from .line_template import buttonRegisterTemplate, flexReportMessageTemlate, flexReportMessageTemplate, \
     flexDispatchDisaster
-from .. import globalRegisterUser, FlaskApp, GlobalInMem, globalRegisterGroup
+from .. import globalRegisterUser, FlaskApp, GlobalInMem, globalRegisterGroup, globalMissionData
 from ..database.mysql_engine import MySQLs
 
 from ..model.event_handle import FollowEventHandle, JoinEventHandle
@@ -165,22 +165,22 @@ class LineController(MethodView):
                     #     MessageAction(label='取消', text='No!')
                     # ])
                     # template_message = buttonRegisterTemplate(event.source.user_id)
-                    data = {'mission_id': '65b8a1fb-e007-472a-b8d3-e1b2e575d30a', 'base_unit': '第四河川局',
-                            'reportform_id': 'RP12365854', 'dispatch_unit': '第八河川局', 'mission_status': '進行預佈',
-                            'pumpcar_num': '8',
-                            'location': '桃園市中壢區中央西路888號', 'remarks': '氣象局預報大雨即將來襲，請盡速前往進行欲佈作業。', 'sender': 'ad',
-                            'create_time': '2020/9/21 14:34:22'}
-                    data = {
-                        'Type': 1, 'OperatorName': '第一河川局', 'Location': '你家', 'Treatment': '-', 'Situation': '-',
-                        'Depth': '15', 'RecededDate': '-', 'IsReceded': True, 'SourceCode': 1, 'CategoryCode': 1,
-                        'Time': '2019-07-18 09:00:00',
-                    }
-                    data1 = {'DisasterFloodingID': 'b76e4d5f-294e-448c-92d2-489ed8e9ae11',
-                             'Time': '2019-07-18 09:00:00', 'CategoryCode': 1, 'SourceCode': 1, 'CaseNo': '員林彰基淹水感測',
-                             'OperatorName': '第四河川局', 'TownCode': '1000710', 'Situation': '未退水',
-                             'Location': '彰化縣員林巿靜修路員林基督教醫院旁', 'Point': {'Latitude': 23.962316, 'Longitude': 120.567229},
-                             'Depth': 35.00841, 'Treatment': '', 'IsReceded': True,
-                             'RecededDate': '2019-07-18 09:00:00', 'Type': 1, 'Photo': []}
+                    # data = {'mission_id': '65b8a1fb-e007-472a-b8d3-e1b2e575d30a', 'base_unit': '第四河川局',
+                    #         'reportform_id': 'RP12365854', 'dispatch_unit': '第八河川局', 'mission_status': '進行預佈',
+                    #         'pumpcar_num': '8',
+                    #         'location': '桃園市中壢區中央西路888號', 'remarks': '氣象局預報大雨即將來襲，請盡速前往進行欲佈作業。', 'sender': 'ad',
+                    #         'create_time': '2020/9/21 14:34:22'}
+                    # data = {
+                    #     'Type': 1, 'OperatorName': '第一河川局', 'Location': '你家', 'Treatment': '-', 'Situation': '-',
+                    #     'Depth': '15', 'RecededDate': '-', 'IsReceded': True, 'SourceCode': 1, 'CategoryCode': 1,
+                    #     'Time': '2019-07-18 09:00:00',
+                    # }
+                    data1 = {'disasterFloodingID': 'b76e4d5f-294e-448c-92d2-489ed8e9ae11',
+                             'time': '2019-07-18 09:00:00', 'categoryCode': 1, 'sourceCode': 1, 'caseNo': '員林彰基淹水感測',
+                             'operatorName': '第四河川局', 'townCode': '1000710', 'situation': '未退水',
+                             'location': '彰化縣員林巿靜修路員林基督教醫院旁', 'point': {'latitude': 23.962316, 'longitude': 120.567229},
+                             'depth': 35.00841, 'treatment': '', 'isReceded': True,
+                             'recededDate': '2019-07-18 09:00:00', 'type': 1, 'photo': []}
 
                     # line_bot_api.reply_message(event.reply_token, flexReportMessageTemplate(data))
                     line_bot_api.reply_message(event.reply_token, flexDispatchDisaster(data1))
@@ -222,7 +222,9 @@ class LineController(MethodView):
                             'pumpcar_num': '8',
                             'location': '桃園市中壢區中央西路888號', 'remarks': '氣象局預報大雨即將來襲，請盡速前往進行欲佈作業。', 'sender': 'ad',
                             'create_time': '2020/9/21 14:34:22'}
-                    line_bot_api.reply_message(event.reply_token, flexReportMessageTemplate(data))
+                    flex_json=  flexReportMessageTemplate(data)
+                    if flex_json!=None:
+                        line_bot_api.reply_message(event.reply_token, flex_json)
 
                 # profile = line_bot_api.get_group_summary(event.source.group_id)
                 # grpid = line_bot_api.get_group_member_profile(user_id=event.source.user_id, group_id=event.source.group_id)
@@ -457,21 +459,38 @@ class LineRepostMessageToLineBotController(MethodView):
         json_body = request.get_json()
         dispatch_unit = json_body['dispatch_unit']
         groupid = None
-        sql = "INSERT INTO wraproject.pump_mission_list (mission_id, base_unit, report_no,dispatch_unit,mission_status,num,support_location,sender,create_time) VALUES ('" + \
-              json_body['mission_id'] + "', '" + json_body['base_unit'] + "', '" + json_body['reportform_id'] + "', '" + \
-              json_body['dispatch_unit'] + "', '" + json_body['mission_status'] + "', '" + json_body[
-                  'pumpcar_num'] + "', '" + json_body['location'] + "', '" + json_body['sender'] + "','" + json_body[
-                  'create_time'] + "')"
+        sql = None
+        if json_body['mission_id'] != None:
+            if json_body['mission_id'] in globalMissionData:
+                sql = "UPDATE  wraproject.pump_mission_list set mission_id='" + json_body[
+                    'mission_id'] + "', base_unit='" + json_body['base_unit'] + "', report_no='" + json_body[
+                          'reportform_id'] + "', dispatch_unit='" + json_body['dispatch_unit'] + "', mission_status='" + \
+                      json_body['mission_status'] + "',num='" + json_body['pumpcar_num'] + "', support_location='" + \
+                      json_body['location'] + "' ,sender='" + json_body['sender'] + "', create_time='" + json_body[
+                          'create_time'] + "' WHERE mission_id='" + json_body['mission_id'] + "'"
+                print(sql)
 
-        val = MySQLs().run(sql)
+            else:
+                globalMissionData.add(json_body['mission_id'])
+                sql = "INSERT INTO wraproject.pump_mission_list (mission_id, base_unit, report_no,dispatch_unit,mission_status,num,support_location,sender,create_time) VALUES ('" + \
+                      json_body['mission_id'] + "', '" + json_body['base_unit'] + "', '" + json_body[
+                          'reportform_id'] + "', '" + \
+                      json_body['dispatch_unit'] + "', '" + json_body['mission_status'] + "', '" + json_body[
+                          'pumpcar_num'] + "', '" + json_body['location'] + "', '" + json_body['sender'] + "','" + \
+                      json_body[
+                          'create_time'] + "')"
 
-        for key in globalRegisterGroup.keys():
-            if globalRegisterGroup[key]['groupname'] == dispatch_unit:
-                groupid = key
-                break
-        if json_body is not None and groupid is not None:
-            line_bot_api.push_message(groupid, flexReportMessageTemplate(json_body))
-        print(json_body)
+            val = MySQLs().run(sql)
+
+            for key in globalRegisterGroup.keys():
+                if globalRegisterGroup[key]['groupname'] == dispatch_unit:
+                    groupid = key
+                    break
+            if json_body is not None and groupid is not None:
+                flex_json = flexReportMessageTemplate(json_body)
+                if flex_json != None:
+                    line_bot_api.push_message(groupid, flex_json)
+            print(json_body)
         return {'success': 200}
 
     def get(self):
@@ -491,15 +510,15 @@ class LineDispatchDisasterToLineBotController(MethodView):
         print(json_body)
         # if(type(json_body)=="list"):
         for j in json_body:
-                dispatch_unit = j['operatorName']
-                groupid = None
+            dispatch_unit = j['operatorName']
+            groupid = None
 
-                for key in globalRegisterGroup.keys():
-                    if globalRegisterGroup[key]['groupname'] == dispatch_unit:
-                        groupid = key
-                        break
-                if j is not None and groupid is not None:
-                    line_bot_api.push_message(groupid, flexDispatchDisaster(j))
+            for key in globalRegisterGroup.keys():
+                if globalRegisterGroup[key]['groupname'] == dispatch_unit:
+                    groupid = key
+                    break
+            if j is not None and groupid is not None:
+                line_bot_api.push_message(groupid, flexDispatchDisaster(j))
         # else:
         #     dispatch_unit = json_body['operatorName']
         #     groupid = None

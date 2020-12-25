@@ -23,9 +23,33 @@ def buttonRegisterTemplate(user_id):
         alt_text='註冊帳號', template=button_template)
     return template_message
 
+def isNoneReturnDash(val):
+    if isinstance(val,str) and (val=="" or val==None):
+        return '-'
+
+    elif isinstance(val,int) and val==None:
+        return '0'
+    else:
+        return val
+
+def isTimeFormat(input):
+    print(input)
+    try:
+        return datetime.strptime(input, '%Y-%m-%d %H:%M:%S').strftime('%Y/%m/%d %H:%M')
+    except ValueError:
+        try:
+            return datetime.strptime(input, '%Y-%m-%dT%H:%M:%S').strftime('%Y/%m/%d %H:%M')
+        except ValueError:
+            try:
+                return datetime.strptime(input, '%Y/%m/%d %H:%M:%S').strftime('%Y/%m/%d %H:%M')
+            except ValueError:
+                return '-'
+
 
 def flexReportMessageTemplate(jsonObj):
-    create_time_str = datetime.strptime(jsonObj['create_time'], '%Y/%m/%d %H:%M:%S').strftime('%Y/%m/%d %H:%M')
+    if(jsonObj['mission_id']==None):
+        return None
+    create_time_str = isTimeFormat(jsonObj['create_time'])
     bubble = {
         "type": "bubble",
         "header": {
@@ -130,7 +154,7 @@ def flexReportMessageTemplate(jsonObj):
                                         },
                                         {
                                             "type": "text",
-                                            "text": jsonObj['base_unit'] + " - " + jsonObj['reportform_id'],
+                                            "text": isNoneReturnDash(jsonObj['base_unit']) + " - " + isNoneReturnDash(jsonObj['reportform_id']),
                                             "weight": "bold",
                                             "size": "sm",
                                             "color": "#666666FF",
@@ -179,7 +203,7 @@ def flexReportMessageTemplate(jsonObj):
                                         },
                                         {
                                             "type": "text",
-                                            "text": jsonObj['location'],
+                                            "text": isNoneReturnDash(jsonObj['location']),
                                             "weight": "bold",
                                             "size": "sm",
                                             "color": "#666666FF",
@@ -229,7 +253,7 @@ def flexReportMessageTemplate(jsonObj):
                                         },
                                         {
                                             "type": "text",
-                                            "text": jsonObj['dispatch_unit'],
+                                            "text": isNoneReturnDash(jsonObj['dispatch_unit']),
                                             "weight": "bold",
                                             "size": "sm",
                                             "color": "#666666FF",
@@ -277,7 +301,7 @@ def flexReportMessageTemplate(jsonObj):
                                         },
                                         {
                                             "type": "text",
-                                            "text": jsonObj['mission_status'],
+                                            "text": isNoneReturnDash(jsonObj['mission_status']),
                                             "weight": "bold",
                                             "size": "sm",
                                             "color": "#666666FF",
@@ -326,7 +350,7 @@ def flexReportMessageTemplate(jsonObj):
                                         },
                                         {
                                             "type": "text",
-                                            "text": jsonObj['pumpcar_num'] + " (輛)",
+                                            "text": isNoneReturnDash(jsonObj['pumpcar_num']) + " (輛)",
                                             "weight": "bold",
                                             "size": "sm",
                                             "color": "#666666FF",
@@ -376,7 +400,7 @@ def flexReportMessageTemplate(jsonObj):
                                         },
                                         {
                                             "type": "text",
-                                            "text": jsonObj['remarks'],
+                                            "text": isNoneReturnDash(jsonObj['remarks']),
                                             "weight": "bold",
                                             "size": "sm",
                                             "color": "#666666FF",
@@ -439,14 +463,6 @@ def flexReportMessageTemplate(jsonObj):
 
 # jsonObj['mission_id']
 
-def isTimeFormat(input):
-    try:
-        return datetime.strptime(input, '%Y-%m-%d %H:%M:%S').strftime('%Y/%m/%d %H:%M')
-    except ValueError:
-        try:
-            return datetime.strptime(input, '%Y-%m-%dT%H:%M:%S').strftime('%Y/%m/%d %H:%M')
-        except ValueError:
-            return '-'
 
 def flexDispatchDisaster(jsonObj):
     create_time_str = isTimeFormat(jsonObj['time'])

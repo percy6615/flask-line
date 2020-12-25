@@ -19,7 +19,7 @@ basedir = basedirs + '/cache'
 globalInMem = GlobalInMem().handleUserList()
 globalRegisterUser = globalInMem.getUserList()
 globalRegisterGroup = globalInMem.getGroupList()
-globalMissionData = dict()
+globalMissionData = globalInMem.getMissionid()
 
 webhook_baseuri = os.getenv('webhook_baseuri')
 wra_baseuri = os.getenv('wra_baseuri')

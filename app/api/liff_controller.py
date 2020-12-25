@@ -106,6 +106,7 @@ from PIL import Image, ExifTags
 class LiffUploadImageController(MethodView):
     def post(self):
         missionID = request.args.get('mission_id')
+        print('updateimage'+missionID)
         static_tmp_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'images', 'disasterpics')
         filedata = request.files['Filedata']
         if filedata is not None:
@@ -115,13 +116,14 @@ class LiffUploadImageController(MethodView):
             for orientation in ExifTags.TAGS.keys():
                 if ExifTags.TAGS[orientation] == 'Orientation':
                     break
-            exif = dict(image._getexif().items())
-            if exif[orientation] == 3:
-                image = image.rotate(180, expand=True)
-            elif exif[orientation] == 6:
-                image = image.rotate(270, expand=True)
-            elif exif[orientation] == 8:
-                image = image.rotate(90, expand=True)
+            if image!=None and image._getexif()!=None:
+                exif = dict(image._getexif().items())
+                if exif[orientation] == 3:
+                    image = image.rotate(180, expand=True)
+                elif exif[orientation] == 6:
+                    image = image.rotate(270, expand=True)
+                elif exif[orientation] == 8:
+                    image = image.rotate(90, expand=True)
             image.save(os.path.join(static_tmp_path, secure_filename(missionID + "." + ext)))
             image.close()
         return {"success": "200"}
