@@ -4,16 +4,18 @@ import os
 import random
 
 import requests
-from flask import render_template, request, send_from_directory, make_response, jsonify
+from flask import render_template, request, send_from_directory, make_response
 from flask.views import MethodView
 from werkzeug.utils import secure_filename
 
-from app import webhook_baseuri, globalRegisterUser, wra_baseuri, image_sign_static
+from app import webhook_baseuri, globalRegisterUser
 from app.database.mysql_engine import MySQLs
 
 liffReportpageID = os.getenv('LIFF_REPORT_ID')
 liffAssignID = os.getenv('LIFF_Assign_ID')
 wra_inn_baseuri = os.getenv('wra_inn_baseuri')
+
+
 class LiffControllerToolsBot(MethodView):
     def get(self):
         return render_template('toolsbot.html', param1=str(random.random()))
@@ -88,25 +90,28 @@ class LiffGetQueryPostSaveMissionController(MethodView):
 
             jsondata = dict()
             jsondata['site_pic_url'] = static_tmp_path
-            jsondata['site_condition']= post_data['site_condition']
+            jsondata['site_condition'] = post_data['site_condition']
             jsondata['mission_id'] = post_data['mission_id']
             jsondata['flood_deep'] = post_data['flood_deep']
             jsondata['pump_car_list'] = post_data['pump_car_list']
             jsondata['line_id'] = post_data['line_id']
             jsondata['report_no'] = post_data['line_id']
             jsondata['report_no'] = post_data['report_no']
-            r = requests.post(wra_inn_baseuri+"/reportmission", data=jsondata)
+            r = requests.post(wra_inn_baseuri + "/reportmission", data=jsondata)
             # if r.status is not 200:
             #     r = requests.post(wra_inn_baseuri + "/reportmission", data=jsondata)
             return {'status': "success"}
         else:
             return {'status': "fail"}
+
+
 from PIL import Image, ExifTags
+
 
 class LiffUploadImageController(MethodView):
     def post(self):
         missionID = request.args.get('mission_id')
-        print('updateimage'+missionID)
+        print('updateimage' + missionID)
         static_tmp_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'images', 'disasterpics')
         filedata = request.files['Filedata']
         if filedata is not None:
@@ -116,7 +121,7 @@ class LiffUploadImageController(MethodView):
             for orientation in ExifTags.TAGS.keys():
                 if ExifTags.TAGS[orientation] == 'Orientation':
                     break
-            if image!=None and image._getexif()!=None:
+            if image != None and image._getexif() != None:
                 exif = dict(image._getexif().items())
                 if exif[orientation] == 3:
                     image = image.rotate(180, expand=True)
@@ -141,17 +146,19 @@ class LiffGetIDFromLine(MethodView):
         response.status_code = 200
         return response
 
+
 def isUserRegister(user_id):
     if user_id in globalRegisterUser:
         if globalRegisterUser[user_id]['webflag'] == 1:
             return True
     return False
 
+
 class LiffVerifyController(MethodView):
     def post(self):
         jsondata = request.get_json()
-        verify = {'verify': -1} #-1 line no register no webflag
-        if 'lineuserid' in jsondata: #webflag
+        verify = {'verify': -1}  # -1 line no register no webflag
+        if 'lineuserid' in jsondata:  # webflag
             uid = jsondata['lineuserid']
             if uid in globalRegisterUser:
                 if globalRegisterUser[uid]['webflag'] == 1:
@@ -160,8 +167,17 @@ class LiffVerifyController(MethodView):
                     verify = {'verify': 0}  # 0 line register no webflag
         elif 'missionid' in jsondata:
             mid = jsondata['missionid']
-            requests.post(wra_inn_baseuri+"/read",{"missionid":mid})
+            requests.post(wra_inn_baseuri + "/read", {"missionid": mid})
         response = make_response(verify)
         response.status_code = 200
         return response
 
+
+# class WellknownController(MethodView):
+#     def post(self):
+#         pass
+#
+#     def get(self):
+#         print()
+#         response = make_response({"sucess": 1})
+#         return response

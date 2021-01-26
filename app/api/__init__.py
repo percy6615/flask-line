@@ -43,5 +43,7 @@ app.add_url_rule('/webhooks/getliffid',
 app.add_url_rule('/webhooks/verify',view_func=LiffVerifyController.as_view('LiffVerifyController'))
 
 
+# app.add_url_rule('/.well-known',view_func=WellknownController.as_view('WellknownController'))
+
 
 

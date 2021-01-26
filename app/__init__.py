@@ -1,6 +1,6 @@
 import random
 
-from flask import Flask, send_from_directory, Response, send_file
+from flask import Flask, send_from_directory, Response, send_file, request
 from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
@@ -58,18 +58,27 @@ app = routerApp.getApp()
 def favicon():
     return send_from_directory('static', 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
-# static_disasterpics_path = os.path.join("app", 'static')
-# @app.route('/.well-known/acme-challenge/<id>')
-# def acme_challenge(id):
-#     fp = open(static_disasterpics_path+"/"+id, "w")
-#
-#     # 將 lines 所有內容寫入到檔案
-#     lines = [id]
-#     fp.writelines(lines)
-#
-#     # 關閉檔案
-#     fp.close()
-#     return Response(id)
+# @app.route('/.well-known/acme-challenge/<challenge>')
+# def letsencrypt_check(challenge):
+#     challenge_response = {
+#         "<challenge_token>":"<challenge_response>",
+#         "<challenge_token>":"<challenge_response>"
+#     }
+#     return Response(challenge_response[challenge], mimetype='text/plain')
+
+static_disasterpics_path = os.path.join("app", 'static')
+@app.route('/.well-known/acme-challenge/<id>')
+def acme_challenge(id):
+    get = request.args.get(id)
+    fp = open(static_disasterpics_path+"/"+id, "w")
+
+    # 將 lines 所有內容寫入到檔案
+    lines = [id]
+    fp.writelines(lines)
+
+    # 關閉檔案
+    fp.close()
+    return Response(id, mimetype='text/plain')
 
 from . import api
 from . import auth
