@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 
 from linebot.models import ButtonsTemplate, URIAction, TemplateSendMessage, BubbleContainer, ImageComponent, \
-    BoxComponent, TextComponent, IconComponent, SpacerComponent, ButtonComponent, SeparatorComponent, FlexSendMessage
+    BoxComponent, TextComponent, IconComponent, ButtonComponent, SeparatorComponent, FlexSendMessage
 
 # wra_baseuri = 'http://ncsist.wrapoc.tk'
 from app import webhook_baseuri, image_register_static, wra_baseuri, wra_register
